@@ -23,6 +23,7 @@
 #include <inttypes.h>
 #include "utils/array.h"
 #include "utils/bytea.h"
+#include "utils/int8.h"
 #include "utils/memutils.h"
 #include "catalog/pg_type.h"
 
