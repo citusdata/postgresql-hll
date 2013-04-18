@@ -15,7 +15,13 @@
 
 #include <postgres.h>	// Needs to be first.
 
+#if defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define bswap_64 OSSwapInt64
+#else
 #include <byteswap.h>
+#endif
+
 #include <funcapi.h>
 #include <math.h>
 #include <stdlib.h>
