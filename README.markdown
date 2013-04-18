@@ -286,7 +286,9 @@ Explanation of Parameters and Tuning
 
 ### `log2m` ###
 
-The log-base-2 of the number of registers used in the HyperLogLog algorithm. Must be at least 4 and at most 31. This parameter tunes the accuracy of the HyperLogLog structure. The relative error is given by the expression ±1.04/√(2<sup>log2m</sup>). Note that increasing `log2m` by 1 doubles the required storage for the `hll`.
+The log-base-2 of the number of registers used in the HyperLogLog algorithm. Must be at least 4 and at most 17. This parameter tunes the accuracy of the HyperLogLog structure. The relative error is given by the expression ±1.04/√(2<sup>log2m</sup>). Note that increasing `log2m` by 1 doubles the required storage for the `hll`.
+
+**NOTE:** The restriction of `log2m` to a maximum value of 17 is an implementation tradeoff between performance and general appeal. We are currently unaware of any deployments of HyperLogLog registers that use a `log2m` value greater than 16. If you want access to higher `log2m` values, let us know in the Issues section and we'll see what we can do.
 
 ### `regwidth` ###
 
@@ -305,24 +307,23 @@ The number of bits used per register in the HyperLogLog algorithm. Must be at le
 <tr><td>15</td><td>2.4e+04 &nbsp;&nbsp;<em><sub>4KB</sub></em></td><td>9.5e+04 &nbsp;&nbsp;<em><sub>8KB</sub></em></td><td>1.5e+06 &nbsp;&nbsp;<em><sub>12KB</sub></em></td><td>3.9e+08 &nbsp;&nbsp;<em><sub>16KB</sub></em></td><td>2.5e+13 &nbsp;&nbsp;<em><sub>20KB</sub></em></td><td>1.1e+23 &nbsp;&nbsp;<em><sub>24KB</sub></em></td></tr>
 <tr><td>16</td><td>4.7e+04 &nbsp;&nbsp;<em><sub>8KB</sub></em></td><td>1.9e+05 &nbsp;&nbsp;<em><sub>16KB</sub></em></td><td>3.0e+06 &nbsp;&nbsp;<em><sub>24KB</sub></em></td><td>7.7e+08 &nbsp;&nbsp;<em><sub>32KB</sub></em></td><td>5.1e+13 &nbsp;&nbsp;<em><sub>40KB</sub></em></td><td>2.2e+23 &nbsp;&nbsp;<em><sub>48KB</sub></em></td></tr>
 <tr><td>17</td><td>9.5e+04 &nbsp;&nbsp;<em><sub>16KB</sub></em></td><td>3.8e+05 &nbsp;&nbsp;<em><sub>32KB</sub></em></td><td>6.0e+06 &nbsp;&nbsp;<em><sub>48KB</sub></em></td><td>1.5e+09 &nbsp;&nbsp;<em><sub>64KB</sub></em></td><td>1.0e+14 &nbsp;&nbsp;<em><sub>80KB</sub></em></td><td>4.4e+23 &nbsp;&nbsp;<em><sub>96KB</sub></em></td></tr>
-<tr><td>18</td><td>1.9e+05 &nbsp;&nbsp;<em><sub>32KB</sub></em></td><td>7.6e+05 &nbsp;&nbsp;<em><sub>64KB</sub></em></td><td>1.2e+07 &nbsp;&nbsp;<em><sub>96KB</sub></em></td><td>3.1e+09 &nbsp;&nbsp;<em><sub>128KB</sub></em></td><td>2.0e+14 &nbsp;&nbsp;<em><sub>160KB</sub></em></td><td>8.7e+23 &nbsp;&nbsp;<em><sub>192KB</sub></em></td></tr>
-<tr><td>19</td><td>3.8e+05 &nbsp;&nbsp;<em><sub>64KB</sub></em></td><td>1.5e+06 &nbsp;&nbsp;<em><sub>128KB</sub></em></td><td>2.4e+07 &nbsp;&nbsp;<em><sub>192KB</sub></em></td><td>6.2e+09 &nbsp;&nbsp;<em><sub>256KB</sub></em></td><td>4.1e+14 &nbsp;&nbsp;<em><sub>320KB</sub></em></td><td>1.7e+24 &nbsp;&nbsp;<em><sub>384KB</sub></em></td></tr>
-<tr><td>20</td><td>7.6e+05 &nbsp;&nbsp;<em><sub>128KB</sub></em></td><td>3.0e+06 &nbsp;&nbsp;<em><sub>256KB</sub></em></td><td>4.8e+07 &nbsp;&nbsp;<em><sub>384KB</sub></em></td><td>1.2e+10 &nbsp;&nbsp;<em><sub>512KB</sub></em></td><td>8.1e+14 &nbsp;&nbsp;<em><sub>640KB</sub></em></td><td>3.5e+24 &nbsp;&nbsp;<em><sub>768KB</sub></em></td></tr>
     </tbody>
 </table>
 
 ### `expthresh` ###
 
-Tunes when the `EXPLICIT` to `SPARSE` promotion occurs, based on the set's cardinality. It is also possible to turn off the use of the `EXPLICIT` representation entirely. If the `EXPLICIT` representation is turned off, the `EMPTY` set is promoted directly to `SPARSE`. Must be -1, 0, or 1-31 inclusive.
+Tunes when the `EXPLICIT` to `SPARSE` promotion occurs, based on the set's cardinality. It is also possible to turn off the use of the `EXPLICIT` representation entirely. If the `EXPLICIT` representation is turned off, the `EMPTY` set is promoted directly to `SPARSE`. Must be -1, 0, or 1-18 inclusive.
 
 <table>
     <thead><th><code>expthresh</code> value</th><th>Meaning</th></thead>
     <tr><td>-1</td><td>Promote at whatever cutoff makes sense for optimal memory usage. ('auto' mode)</td></tr>
     <tr><td>0</td><td>Skip <code>EXPLICIT</code> representation in hierarchy.</td></tr>
-    <tr><td>1-31</td><td>Promote at 2<sup>expthresh</sup> cardinality</td></tr>
+    <tr><td>1-18</td><td>Promote at 2<sup>expthresh - 1</sup> cardinality</td></tr>
 </table>
 
-Note that you can choose the `EXPLICIT` cutoff such that it will end up taking more memory than a `FULL` `hll` representation. This is allowed for those cases where perfect precision and accuracy are required up through some pre-set cardinality range, after which estimates of the cardinality are sufficient.
+You can choose the `EXPLICIT` cutoff such that it will end up taking more memory than a `FULL` `hll` representation. This is allowed for those cases where perfect precision and accuracy are required up through some pre-set cardinality range, after which estimates of the cardinality are sufficient.
+
+**NOTE:** The restriction of `expthresh` to a maximum value of 18 (for the third case in the table above) is an implementation tradeoff between performance and general appeal. If you want access to higher `expthresh` values, let us know in the Issues section and we'll see what we can do.
 
 ### `sparseon` ###
 
