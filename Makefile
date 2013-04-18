@@ -35,7 +35,9 @@ endif
 
 SHLIB_LINK	+= -lstdc++
 
-PG_CONFIG = /usr/pgsql-9.1/bin/pg_config
+ifndef PG_CONFIG
+PG_CONFIG = pg_config
+endif
 
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)

@@ -359,12 +359,16 @@ If you end up needing to change something to get this running on another system,
 Build
 =====
 
-## With rpmbuild ##
+## With `rpmbuild` ##
 
 Specify versions:
 
     export VER=2.7
     export PGSHRT=91
+
+Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
+
+    PG_CONFIG = /usr/pgsql-9.1/bin/pg_config
 
 Create a tarball from the source tree:
 
@@ -381,16 +385,16 @@ Install RPM:
 
 And if you want the debugging build:
 
-        rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-debuginfo-2.7-0.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-debuginfo-2.7-0.x86_64.rpm
 
 
 ## From source ##
 
-Change `Makefile` to point to correct `pg_config`:
+If you aren't using the `pg_config` on your path (or don't have it on your path), specify the correct one to build against:
 
-        PG_CONFIG = /usr/pgsql-9.1/bin/pg_config
+        PG_CONFIG=/usr/pgsql-9.1/bin/pg_config make
 
-Build:
+Or to build with what's on your path, just:
 
         make
 
