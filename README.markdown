@@ -398,6 +398,10 @@ Or to build with what's on your path, just:
 
         make
 
+If you're building on OS X with `clang` as the default C/C++ compiler, you'll need to specify `gcc` as your compiler:
+
+        make CC=gcc CXX=gcc
+
 Or for the debug build:
 
         DEBUG=1 make

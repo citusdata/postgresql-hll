@@ -65,7 +65,7 @@ SELECT v1.recno,
        v1.union_compressed_multiset,
        (select hll_union_agg(compressed_multiset)
           from test_bmbffonl
-         where recno <= v1.recno)
+         where recno <= v1.recno) as hll_union_agg
   FROM test_bmbffonl v1
  WHERE v1.union_compressed_multiset !=
        (select hll_union_agg(compressed_multiset)
@@ -78,7 +78,7 @@ SELECT v1.recno,
        ceil(v1.union_cardinality),
        (select ceiling(hll_cardinality(hll_union_agg(compressed_multiset)))
           from test_bmbffonl
-         where recno <= v1.recno)
+         where recno <= v1.recno) as ceiling
   FROM test_bmbffonl v1
  WHERE ceil(v1.union_cardinality) !=
        (select ceiling(hll_cardinality(hll_union_agg(compressed_multiset)))
