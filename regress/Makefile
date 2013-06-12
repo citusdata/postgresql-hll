@@ -30,6 +30,7 @@ SQL =	\
 		typmod.sql \
 		typmod_insert.sql \
 		hash.sql \
+		hash_any.sql \
 		murmur_bigint.sql \
 		murmur_bytea.sql \
 		equal.sql \
