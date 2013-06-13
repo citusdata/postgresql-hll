@@ -30,6 +30,7 @@
 #include "utils/array.h"
 #include "utils/bytea.h"
 #include "utils/int8.h"
+#include "utils/lsyscache.h"
 #include "utils/memutils.h"
 #include "catalog/pg_type.h"
 
@@ -2570,6 +2571,70 @@ hll_hash_varlena(PG_FUNCTION_ARGS)
 
     PG_RETURN_INT64(out[0]);
 }
+
+
+// Hash any scalar data type.
+//
+PG_FUNCTION_INFO_V1(hll_hash_any);
+Datum		hll_hash_any(PG_FUNCTION_ARGS);
+Datum
+hll_hash_any(PG_FUNCTION_ARGS)
+{
+    Datum keyDatum = PG_GETARG_DATUM(0);
+    Datum seedDatum = PG_GETARG_DATUM(1);
+    Datum hashResultDatum = 0;
+
+    Oid keyTypeId = get_fn_expr_argtype(fcinfo->flinfo, 0);
+    int16 keyTypeLength = get_typlen(keyTypeId);
+
+    /* dispatch to corresponding hash function for key type */
+    switch (keyTypeLength)
+    {
+    case 1:
+        hashResultDatum = DirectFunctionCall2(hll_hash_1byte, keyDatum, seedDatum);
+        break;
+
+    case 2:
+        hashResultDatum = DirectFunctionCall2(hll_hash_2byte, keyDatum, seedDatum);
+        break;
+
+    case 4:
+        hashResultDatum = DirectFunctionCall2(hll_hash_4byte, keyDatum, seedDatum);
+        break;
+
+    case 8:
+        hashResultDatum = DirectFunctionCall2(hll_hash_8byte, keyDatum, seedDatum);
+        break;
+
+    case -1:
+    case -2:
+        hashResultDatum = DirectFunctionCall2(hll_hash_varlena, keyDatum, seedDatum);
+        break;
+
+    default:
+    {
+        /*
+         * We have a fixed-size type such as char(10), macaddr, circle, etc. We
+         * first convert this type to its variable-length binary representation
+         * and then dispatch to the variable-length hashing function.
+         */
+        Oid keyTypeSendFunction = InvalidOid;
+        bool keyTypeVarlena = false;
+        Datum keyBinaryDatum = 0;
+
+        /* no need to worry about SPI for these types' output functions */
+        getTypeBinaryOutputInfo(keyTypeId, &keyTypeSendFunction, &keyTypeVarlena);
+        keyBinaryDatum = OidFunctionCall1(keyTypeSendFunction, keyDatum);
+
+        hashResultDatum = DirectFunctionCall2(hll_hash_varlena, keyBinaryDatum,
+                                              seedDatum);
+        break;
+    }
+    }
+
+    PG_RETURN_INT64(hashResultDatum);
+}
+
 
 PG_FUNCTION_INFO_V1(hll_eq);
 Datum		hll_eq(PG_FUNCTION_ARGS);

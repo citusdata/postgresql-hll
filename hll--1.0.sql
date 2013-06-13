@@ -319,6 +319,13 @@ CREATE FUNCTION hll_hash_text(text, integer default 0)
      AS 'MODULE_PATHNAME', 'hll_hash_varlena'
      LANGUAGE C STRICT IMMUTABLE;
 
+-- Hash any scalar data type.
+--
+CREATE FUNCTION hll_hash_any(anyelement, integer default 0)
+     RETURNS hll_hashval
+     AS 'MODULE_PATHNAME', 'hll_hash_any'
+     LANGUAGE C STRICT IMMUTABLE;
+
 
 -- ----------------------------------------------------------------
 -- Operators
