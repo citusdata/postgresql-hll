@@ -240,7 +240,18 @@ The hashing functions we've made available are listed below:
             <code>hll_hash_text('foobar', 123/*hash seed*/)</code>
         </td>
     </tr>
+    <tr>
+        <td><code>hll_hash_any</code></td>
+        <td><code>any</code></td>
+        <td>
+            <code>hll_hash_any(anyval)</code><br/>
+            <strong>or</strong><br/>
+            <code>hll_hash_any(anyval, 123/*hash seed*/)</code>
+        </td>
+    </tr>
 </table>
+
+**NOTE:** `hll_hash_any` dynamically dispatches to the appropriate type-specific function, which makes it slower than the type-specific ones it wraps. Use it only when the input type is not known beforehand.
 
 So what if you don't want to hash your input?
 

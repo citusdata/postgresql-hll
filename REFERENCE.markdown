@@ -1,19 +1,30 @@
 Types
 =====
 
-`hll` - the HLL data structure. Casts between `bytea` and `hll` are supported, should you choose to generate the contents of the `hll` outside of the normal means. See `STORAGE.markdown`.
+`hll`
+-----
 
-`SELECT hll_cardinality(E'\\xDEADBEEF');` OR
+The HLL data structure. Casts between `bytea` and `hll` are supported, should you choose to generate the contents of the `hll` outside of the normal means. See `STORAGE.markdown`.
+
+`SELECT hll_cardinality(E'\\xDEADBEEF');`
+
+OR
+
 `SELECT hll_cardinality(E'\\xDEADBEEF'::hll);`
 
-`hll_hashval` - represents a hashed data value. Backed by a 64-bit integer (`int8in`). Typically only output by the `hll_hash_*` functions. `bigint` and `integer` can both be cast to it if you want to skip hashing those values with the typical `123::hll_hashval`. Note that an `integer` that is cast will also be cast, with sign extension, to a 64-bit integer.
+`hll_hashval`
+-------------
+
+Represents a hashed data value. Backed by a 64-bit integer (`int8in`). Typically only output by the `hll_hash_*` functions. `bigint` and `integer` can both be cast to it if you want to skip hashing those values with the typical `123::hll_hashval`. Note that an `integer` that is cast will also be cast, with sign extension, to a 64-bit integer.
 
 Defaults Functions
 ==================
 
 All defaults for the `hll_empty` and `hll_add_agg` functions are in the C file, not in the SQL control file. The defaults can be changed (per connection) with:
 
-`SELECT hll_set_defaults(log2m, regwidth, expthresh, sparseon);` - returns a 4-tuple with the values of the prior defaults in the same order as the arguments.
+`SELECT hll_set_defaults(log2m, regwidth, expthresh, sparseon);`
+
+This returns a 4-tuple with the values of the prior defaults in the same order as the arguments.
 
 Basic Operational Functions
 ===========================
@@ -70,8 +81,15 @@ All values inserted into an `hll` should be hashed, and as a result `hll_add` an
 All the `hll_hash_*` functions below accept a seed value, which defaults to `0`. We discourage negative seeds in order to maintain hashed-value compatibility with the [Google Guava implementation of the 128-bit version of Murmur3](http://guava-libraries.googlecode.com/git/guava/src/com/google/common/hash/Murmur3_128HashFunction.java). Negative hash seeds will produce a warning when used.
 
 `hll_hash_boolean(boolean)` - hashes the `boolean` value into a `hll_hashval`.
+
 `hll_hash_smallint(smallint)` - hashes the `smallint` value into a `hll_hashval`.
+
 `hll_hash_integer(integer)` - hashes the `integer` value into a `hll_hashval`.
+
 `hll_hash_bigint(bigint)` - hashes the `bigint` value into a `hll_hashval`.
+
 `hll_hash_bytea(bytea)` - hashes the `bytea` value into a `hll_hashval`.
+
 `hll_hash_text(text)` - hashes the `text` value into a `hll_hashval`.
+
+`hll_hash_any(scalar)` - hashes any PG data type by resolving the type dynamically and dispatching to the correct function for that type. This is significantly slower than the type-specific hash functions, and should only be used when the input type is not known beforehand.
