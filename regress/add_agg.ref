@@ -115,5 +115,29 @@ select hll_print(hll_add_agg(NULL, 10));
  EMPTY, nregs=1024, nbits=5, expthresh=-1(80), sparseon=1
 (1 row)
 
+select hll_print(hll_add_agg(NULL, 10, 4));
+                        hll_print                         
+----------------------------------------------------------
+ EMPTY, nregs=1024, nbits=4, expthresh=-1(64), sparseon=1
+(1 row)
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512));
+                       hll_print                       
+-------------------------------------------------------
+ EMPTY, nregs=1024, nbits=4, expthresh=512, sparseon=1
+(1 row)
+
+select hll_print(hll_add_agg(NULL, 10, 4, -1));
+                        hll_print                         
+----------------------------------------------------------
+ EMPTY, nregs=1024, nbits=4, expthresh=-1(64), sparseon=1
+(1 row)
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512, 0));
+                       hll_print                       
+-------------------------------------------------------
+ EMPTY, nregs=1024, nbits=4, expthresh=512, sparseon=0
+(1 row)
+
 DROP TABLE test_khvengxf;
 DROP TABLE

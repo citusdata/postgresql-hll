@@ -64,4 +64,12 @@ select hll_print(hll_add_agg(NULL));
 
 select hll_print(hll_add_agg(NULL, 10));
 
+select hll_print(hll_add_agg(NULL, 10, 4));
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512));
+
+select hll_print(hll_add_agg(NULL, 10, 4, -1));
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512, 0));
+
 DROP TABLE test_khvengxf;
