@@ -25,8 +25,8 @@ DATA =		\
 
 EXTRA_CLEAN += -r $(RPM_BUILD_ROOT)
 
-PG_CPPFLAGS += -fPIC
-PG_CPPFLAGS += -std=c99
+hll.o: override CFLAGS += -std=c99
+MurmurHash3.o: override CC = $(CXX)
 
 ifdef DEBUG
 COPT		+= -O0
