@@ -19,7 +19,7 @@
 
 Summary: Aggregate Knowledge HyperLogLog PostgreSQL extension.
 Name: postgresql%{shortversion}-hll
-Version: 2.7.1
+Version: 2.8.0
 Release: 0
 License: Apache License, Version 2.0
 URL: https://github.com/aggregateknowledge/postgresql-hll
@@ -67,6 +67,8 @@ rm -rf $RPM_BUILD_ROOT
 %{pgbaseinstdir}/lib/hll.so
 
 %changelog
+* Tue Jul 16 2013 Timon Karnezos <timon.karnezos@gmail.com> - 2.8.0-0
+- hll_add_agg now returns hll_empty on input of an empty set
 * Wed Jun 12 2013 Timon Karnezos <timon.karnezos@gmail.com> - 2.7.1-0
 - Build fixes for OS X and Debian.
 - Documentation fixes.
