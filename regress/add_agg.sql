@@ -58,4 +58,18 @@ select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, 512, -1))
 select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, 512, 2))
        from test_khvengxf;
 
+-- Check that we return hll_empty on null input.
+
+select hll_print(hll_add_agg(NULL));
+
+select hll_print(hll_add_agg(NULL, 10));
+
+select hll_print(hll_add_agg(NULL, 10, 4));
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512));
+
+select hll_print(hll_add_agg(NULL, 10, 4, -1));
+
+select hll_print(hll_add_agg(NULL, 10, 4, 512, 0));
+
 DROP TABLE test_khvengxf;

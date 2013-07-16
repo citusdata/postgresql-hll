@@ -2814,10 +2814,26 @@ hll_add_trans4(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("hll_add_trans4 outside transition context")));
 
-    // Is the first argument a NULL?
+    // If the first argument is a NULL on first call, init an hll_empty
     if (PG_ARGISNULL(0))
     {
+        int32 log2m = PG_GETARG_INT32(2);
+        int32 regwidth = PG_GETARG_INT32(3);
+        int64 expthresh = PG_GETARG_INT64(4);
+        int32 sparseon = PG_GETARG_INT32(5);
+
         msap = setup_multiset(aggctx);
+
+        check_modifiers(log2m, regwidth, expthresh, sparseon);
+
+        memset(msap, '\0', sizeof(multiset_t));
+
+        msap->ms_type = MST_EMPTY;
+        msap->ms_nbits = regwidth;
+        msap->ms_nregs = 1 << log2m;
+        msap->ms_log2nregs = log2m;
+        msap->ms_expthresh = expthresh;
+        msap->ms_sparseon = sparseon;
     }
     else
     {
@@ -2828,28 +2844,6 @@ hll_add_trans4(PG_FUNCTION_ARGS)
     if (!PG_ARGISNULL(1))
     {
         int64 val = PG_GETARG_INT64(1);
-
-        // Was the first argument uninitialized?
-        if (msap->ms_type == MST_UNINIT)
-        {
-            int32 log2m = PG_GETARG_INT32(2);
-            int32 regwidth = PG_GETARG_INT32(3);
-            int64 expthresh = PG_GETARG_INT64(4);
-            int32 sparseon = PG_GETARG_INT32(5);
-
-            multiset_t	ms;
-
-            check_modifiers(log2m, regwidth, expthresh, sparseon);
-
-            memset(msap, '\0', sizeof(ms));
-
-            msap->ms_type = MST_EMPTY;
-            msap->ms_nbits = regwidth;
-            msap->ms_nregs = 1 << log2m;
-            msap->ms_log2nregs = log2m;
-            msap->ms_expthresh = expthresh;
-            msap->ms_sparseon = sparseon;
-        }
 
         multiset_add(msap, val);
     }
@@ -2877,10 +2871,26 @@ hll_add_trans3(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("hll_add_trans3 outside transition context")));
 
-    // Is the first argument a NULL?
+    // If the first argument is a NULL on first call, init an hll_empty
     if (PG_ARGISNULL(0))
     {
+        int32 log2m = PG_GETARG_INT32(2);
+        int32 regwidth = PG_GETARG_INT32(3);
+        int64 expthresh = PG_GETARG_INT64(4);
+        int32 sparseon = g_default_sparseon;
+
         msap = setup_multiset(aggctx);
+
+        check_modifiers(log2m, regwidth, expthresh, sparseon);
+
+        memset(msap, '\0', sizeof(multiset_t));
+
+        msap->ms_type = MST_EMPTY;
+        msap->ms_nbits = regwidth;
+        msap->ms_nregs = 1 << log2m;
+        msap->ms_log2nregs = log2m;
+        msap->ms_expthresh = expthresh;
+        msap->ms_sparseon = sparseon;
     }
     else
     {
@@ -2891,28 +2901,6 @@ hll_add_trans3(PG_FUNCTION_ARGS)
     if (!PG_ARGISNULL(1))
     {
         int64 val = PG_GETARG_INT64(1);
-
-        // Was the first argument uninitialized?
-        if (msap->ms_type == MST_UNINIT)
-        {
-            int32 log2m = PG_GETARG_INT32(2);
-            int32 regwidth = PG_GETARG_INT32(3);
-            int64 expthresh = PG_GETARG_INT64(4);
-            int32 sparseon = g_default_sparseon;
-
-            multiset_t	ms;
-
-            check_modifiers(log2m, regwidth, expthresh, sparseon);
-
-            memset(msap, '\0', sizeof(ms));
-
-            msap->ms_type = MST_EMPTY;
-            msap->ms_nbits = regwidth;
-            msap->ms_nregs = 1 << log2m;
-            msap->ms_log2nregs = log2m;
-            msap->ms_expthresh = expthresh;
-            msap->ms_sparseon = sparseon;
-        }
 
         multiset_add(msap, val);
     }
@@ -2940,10 +2928,26 @@ hll_add_trans2(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("hll_add_trans2 outside transition context")));
 
-    // Is the first argument a NULL?
+    // If the first argument is a NULL on first call, init an hll_empty
     if (PG_ARGISNULL(0))
     {
+        int32 log2m = PG_GETARG_INT32(2);
+        int32 regwidth = PG_GETARG_INT32(3);
+        int64 expthresh = g_default_expthresh;
+        int32 sparseon = g_default_sparseon;
+
         msap = setup_multiset(aggctx);
+
+        check_modifiers(log2m, regwidth, expthresh, sparseon);
+
+        memset(msap, '\0', sizeof(multiset_t));
+
+        msap->ms_type = MST_EMPTY;
+        msap->ms_nbits = regwidth;
+        msap->ms_nregs = 1 << log2m;
+        msap->ms_log2nregs = log2m;
+        msap->ms_expthresh = expthresh;
+        msap->ms_sparseon = sparseon;
     }
     else
     {
@@ -2954,28 +2958,6 @@ hll_add_trans2(PG_FUNCTION_ARGS)
     if (!PG_ARGISNULL(1))
     {
         int64 val = PG_GETARG_INT64(1);
-
-        // Was the first argument uninitialized?
-        if (msap->ms_type == MST_UNINIT)
-        {
-            int32 log2m = PG_GETARG_INT32(2);
-            int32 regwidth = PG_GETARG_INT32(3);
-            int64 expthresh = g_default_expthresh;
-            int32 sparseon = g_default_sparseon;
-
-            multiset_t	ms;
-
-            check_modifiers(log2m, regwidth, expthresh, sparseon);
-
-            memset(msap, '\0', sizeof(ms));
-
-            msap->ms_type = MST_EMPTY;
-            msap->ms_nbits = regwidth;
-            msap->ms_nregs = 1 << log2m;
-            msap->ms_log2nregs = log2m;
-            msap->ms_expthresh = expthresh;
-            msap->ms_sparseon = sparseon;
-        }
 
         multiset_add(msap, val);
     }
@@ -3003,10 +2985,26 @@ hll_add_trans1(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("hll_add_trans1 outside transition context")));
 
-    // Is the first argument a NULL?
+    // If the first argument is a NULL on first call, init an hll_empty
     if (PG_ARGISNULL(0))
     {
+        int32 log2m = PG_GETARG_INT32(2);
+        int32 regwidth = g_default_regwidth;
+        int64 expthresh = g_default_expthresh;
+        int32 sparseon = g_default_sparseon;
+
         msap = setup_multiset(aggctx);
+
+        check_modifiers(log2m, regwidth, expthresh, sparseon);
+
+        memset(msap, '\0', sizeof(multiset_t));
+
+        msap->ms_type = MST_EMPTY;
+        msap->ms_nbits = regwidth;
+        msap->ms_nregs = 1 << log2m;
+        msap->ms_log2nregs = log2m;
+        msap->ms_expthresh = expthresh;
+        msap->ms_sparseon = sparseon;
     }
     else
     {
@@ -3017,28 +3015,6 @@ hll_add_trans1(PG_FUNCTION_ARGS)
     if (!PG_ARGISNULL(1))
     {
         int64 val = PG_GETARG_INT64(1);
-
-        // Was the first argument uninitialized?
-        if (msap->ms_type == MST_UNINIT)
-        {
-            int32 log2m = PG_GETARG_INT32(2);
-            int32 regwidth = g_default_regwidth;
-            int64 expthresh = g_default_expthresh;
-            int32 sparseon = g_default_sparseon;
-
-            multiset_t	ms;
-
-            check_modifiers(log2m, regwidth, expthresh, sparseon);
-
-            memset(msap, '\0', sizeof(ms));
-
-            msap->ms_type = MST_EMPTY;
-            msap->ms_nbits = regwidth;
-            msap->ms_nregs = 1 << log2m;
-            msap->ms_log2nregs = log2m;
-            msap->ms_expthresh = expthresh;
-            msap->ms_sparseon = sparseon;
-        }
 
         multiset_add(msap, val);
     }
@@ -3066,10 +3042,26 @@ hll_add_trans0(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("hll_add_trans0 outside transition context")));
 
-    // Is the first argument a NULL?
+    // If the first argument is a NULL on first call, init an hll_empty
     if (PG_ARGISNULL(0))
     {
+        int32 log2m = g_default_log2m;
+        int32 regwidth = g_default_regwidth;
+        int64 expthresh = g_default_expthresh;
+        int32 sparseon = g_default_sparseon;
+
         msap = setup_multiset(aggctx);
+
+        check_modifiers(log2m, regwidth, expthresh, sparseon);
+
+        memset(msap, '\0', sizeof(multiset_t));
+
+        msap->ms_type = MST_EMPTY;
+        msap->ms_nbits = regwidth;
+        msap->ms_nregs = 1 << log2m;
+        msap->ms_log2nregs = log2m;
+        msap->ms_expthresh = expthresh;
+        msap->ms_sparseon = sparseon;
     }
     else
     {
@@ -3080,28 +3072,6 @@ hll_add_trans0(PG_FUNCTION_ARGS)
     if (!PG_ARGISNULL(1))
     {
         int64 val = PG_GETARG_INT64(1);
-
-        // Was the first argument uninitialized?
-        if (msap->ms_type == MST_UNINIT)
-        {
-            int32 log2m = g_default_log2m;
-            int32 regwidth = g_default_regwidth;
-            int64 expthresh = g_default_expthresh;
-            int32 sparseon = g_default_sparseon;
-
-            multiset_t	ms;
-
-            check_modifiers(log2m, regwidth, expthresh, sparseon);
-
-            memset(msap, '\0', sizeof(ms));
-
-            msap->ms_type = MST_EMPTY;
-            msap->ms_nbits = regwidth;
-            msap->ms_nregs = 1 << log2m;
-            msap->ms_log2nregs = log2m;
-            msap->ms_expthresh = expthresh;
-            msap->ms_sparseon = sparseon;
-        }
 
         multiset_add(msap, val);
     }
