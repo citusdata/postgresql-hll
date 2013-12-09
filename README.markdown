@@ -297,9 +297,7 @@ Explanation of Parameters and Tuning
 
 ### `log2m` ###
 
-The log-base-2 of the number of registers used in the HyperLogLog algorithm. Must be at least 4 and at most 17. This parameter tunes the accuracy of the HyperLogLog structure. The relative error is given by the expression ±1.04/√(2<sup>log2m</sup>). Note that increasing `log2m` by 1 doubles the required storage for the `hll`.
-
-**NOTE:** The restriction of `log2m` to a maximum value of 17 is an implementation tradeoff between performance and general appeal. We are currently unaware of any deployments of HyperLogLog registers that use a `log2m` value greater than 16. If you want access to higher `log2m` values, let us know in the Issues section and we'll see what we can do.
+The log-base-2 of the number of registers used in the HyperLogLog algorithm. Must be at least 4 and at most 31. This parameter tunes the accuracy of the HyperLogLog structure. The relative error is given by the expression ±1.04/√(2<sup>log2m</sup>). Note that increasing `log2m` by 1 doubles the required storage for the `hll`.
 
 ### `regwidth` ###
 
