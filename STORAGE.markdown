@@ -72,7 +72,7 @@ Schema Version
         * the highest 3 bits are used to encode the integer value `registerWidth - 1`, and
         * the remaining 5 bits encode the integer value `log2(numberOfRegisters)`.
     
-    `registerWidth` may take values from 1 to 8, inclusive, and `log2(numberOfRegisters)` may take on 1 to 31, inclusive.
+    `registerWidth` may take values from 1 to 8, inclusive, and `log2(numberOfRegisters)` may take on 4 to 31, inclusive.
 
     For example:
 
