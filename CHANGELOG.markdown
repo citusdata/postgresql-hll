@@ -1,3 +1,7 @@
+2013-12-16
+==========
+v2.9.0 - Fixed [issue #16](https://github.com/aggregateknowledge/postgresql-hll/issues/16), `bitstream_pack` fixed to write one byte at a time to avoid writing to unallocated memory.
+
 2013-07-16
 ==========
 v2.8.0 - Fixed [issue #2](https://github.com/aggregateknowledge/postgresql-hll/issues/2), `hll_add_agg` now returns `hll_empty` on input of an empty set. (Thanks to @ozgune!)
