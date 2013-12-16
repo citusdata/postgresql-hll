@@ -369,31 +369,70 @@ typedef struct
 static void
 bitstream_pack(bitstream_write_cursor_t * bwcp, uint32_t val)
 {
-    // Fetch the quadword where our data goes.
-    uint64_t qw = * (uint64_t *) bwcp->bwc_curp;
+    size_t bits_left_in_first_byte = 8 - bwcp->bwc_used;
+    size_t bits_to_write_after_first_byte = bwcp->bwc_nbits - bits_left_in_first_byte;
+    size_t full_bytes_to_write = bits_to_write_after_first_byte / 8;
+    size_t remainder_bits_after_full_bytes = bits_to_write_after_first_byte % 8;
 
-    // Swap the bytes.
-    qw = bswap_64(qw);
-
-    // Shift our bits into place and combine.
-    qw |= ((uint64_t) val << (64 - bwcp->bwc_nbits - bwcp->bwc_used));
-
-    // Swap the bytes back again.
-    qw = bswap_64(qw);
-
-    // Write the word back out.
-    * (uint64_t *) bwcp->bwc_curp = qw;
-
-    // We've used some more bits now.
-    bwcp->bwc_used += bwcp->bwc_nbits;
-
-    // Normalize the cursor.
-    while (bwcp->bwc_used >= 8)
+    // write is small enough that it fits in current byte's remaining space with
+    // room to spare, so pad the bottom of the byte by left-shifting
+    if (bwcp->bwc_nbits < bits_left_in_first_byte)
     {
-        bwcp->bwc_used -= 8;
-        bwcp->bwc_curp += 1;
+        * bwcp->bwc_curp = (* bwcp->bwc_curp) | ((uint8_t)(val << (bits_left_in_first_byte - bwcp->bwc_nbits)));
+
+        // consume part of the byte and exit
+        bwcp->bwc_used += bwcp->bwc_nbits;
+        return;
     }
 
+    // write fits exactly in current byte's remaining space, so just OR it in to
+    // the bottom bits of the byte
+    if (bwcp->bwc_nbits == bits_left_in_first_byte)
+    {
+        * bwcp->bwc_curp = (* bwcp->bwc_curp) | (uint8_t)(val);
+
+        // consume remainder of byte and exit
+        bwcp->bwc_used = 0;
+        bwcp->bwc_curp += 1;
+        return;
+    }
+
+    // write DOES NOT fit into current byte, so shift off all but the topmost
+    // bits from the value and OR those into the bottom bits of the byte
+    /* bwcp->bwc_nbits > bits_left_in_first_byte */
+    * bwcp->bwc_curp = (* bwcp->bwc_curp) | ((uint8_t)(val >> (bwcp->bwc_nbits - bits_left_in_first_byte)));
+
+    // consume remainder of byte
+    bwcp->bwc_used = 0;
+    bwcp->bwc_curp += 1;
+
+    // if there are 8 or more bits of the value left to write, write them in one
+    // byte chunks, higher chunks first
+    if (full_bytes_to_write > 0)
+    {
+        for (size_t i = 0; i < full_bytes_to_write; ++i)
+        {
+            size_t bits_to_keep = bits_left_in_first_byte + (8 * (i + 1));
+            size_t right_shift = (bwcp->bwc_nbits - bits_to_keep);
+
+            // no OR here because byte is guaranteed to be completely unused
+            // see above, before conditional
+            * bwcp->bwc_curp = (uint8_t)(val >> right_shift);
+
+            // consume entire byte
+            bwcp->bwc_used = 0;
+            bwcp->bwc_curp += 1;
+        }
+    }
+    if (remainder_bits_after_full_bytes > 0)
+    {
+        uint8_t mask = (1 << remainder_bits_after_full_bytes) - 1;
+        // no OR here because byte is guaranteed to be completely unused
+        * bwcp->bwc_curp = ((uint8_t)val & mask) << (8 - remainder_bits_after_full_bytes);
+
+        // consume part of the byte
+        bwcp->bwc_used = remainder_bits_after_full_bytes;
+    }
 }
 
 static void
