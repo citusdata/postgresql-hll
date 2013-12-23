@@ -484,7 +484,9 @@ For more information on `hll` intersections, see [this blog post](http://blog.ag
 Storage formats
 ===============
 
-`hll`s are stored in the database as byte arrays, which are packed according to the specification in `STORAGE.markdown`. The current specification supports a versioning schema should the need to change the layout, algorithms, or promotion hierarchy arise. (There is currently only one schema version, however.)
+`hll`s are stored in the database as byte arrays, which are packed according to the [storage specification, v1.0.0](https://github.com/aggregateknowledge/hll-storage-spec/blob/v1.0.0/STORAGE.md).
 
-It is a pretty trivial task to export these to and from Postgres and other applications by implementing a serializer/deserializer. We hope to release a Java serialization/deserialization package as well as a naive algorithm wrapper in the near future to allow the development of rich `hll`-based applications outside of Postgres.
+It is a pretty trivial task to export these to and from Postgres and other applications by implementing a serializer/deserializer. We have provided several packages that provide such tools:
 
+* [java-hll](https://github.com/aggregateknowledge/java-hll)
+* [js-hll](https://github.com/aggregateknowledge/js-hll)

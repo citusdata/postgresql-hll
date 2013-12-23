@@ -55,7 +55,7 @@ Metadata Functions
 
 `hll_schema_version(hll)` - returns the schema version value (integer) of the `hll`.
 
-`hll_type(hll)` - returns the schema version-specific type value (integer) of the `hll`. See `STORAGE.markdown`.
+`hll_type(hll)` - returns the schema version-specific type value (integer) of the `hll`. See the [storage specification (v1.0.0)](https://github.com/aggregateknowledge/hll-storage-spec/blob/v1.0.0/STORAGE.md) for more details.
 
 `hll_regwidth(hll)` - returns the register bit-width (integer) of the `hll`.
 
