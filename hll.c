@@ -2266,13 +2266,12 @@ hll_type(PG_FUNCTION_ARGS)
     size_t asz;
     multiset_t	msa;
     uint8_t type;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, &type);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, &type);
 
 	PG_RETURN_INT32(type);
 }
@@ -2287,13 +2286,12 @@ hll_log2m(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_log2nregs);
 }
@@ -2308,13 +2306,12 @@ hll_regwidth(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_nbits);
 }
@@ -2329,7 +2326,6 @@ hll_expthresh(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     size_t nbits;
     size_t nregs;
@@ -2343,7 +2339,7 @@ hll_expthresh(PG_FUNCTION_ARGS)
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
     nbits = msa.ms_nbits;
     nregs = msa.ms_nregs;
@@ -2389,13 +2385,12 @@ hll_sparseon(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_sparseon);
 }
