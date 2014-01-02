@@ -7,7 +7,6 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_bmbffonl;
-psql:cumulative_union_sparse_sparse.sql:6: NOTICE:  table "test_bmbffonl" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_bmbffonl (
     recno                       SERIAL,
@@ -16,7 +15,6 @@ CREATE TABLE test_bmbffonl (
     union_cardinality           double precision,
     union_compressed_multiset   hll
 );
-psql:cumulative_union_sparse_sparse.sql:14: NOTICE:  CREATE TABLE will create implicit sequence "test_bmbffonl_recno_seq" for serial column "test_bmbffonl.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --

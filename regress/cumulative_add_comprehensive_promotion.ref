@@ -17,7 +17,6 @@ SELECT hll_set_max_sparse(512);
 (1 row)
 
 DROP TABLE IF EXISTS test_ptwysrqk;
-psql:cumulative_add_comprehensive_promotion.sql:12: NOTICE:  table "test_ptwysrqk" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_ptwysrqk (
     recno                       SERIAL,
@@ -25,7 +24,6 @@ CREATE TABLE test_ptwysrqk (
     raw_value                   bigint,
     union_compressed_multiset   hll
 );
-psql:cumulative_add_comprehensive_promotion.sql:19: NOTICE:  CREATE TABLE will create implicit sequence "test_ptwysrqk_recno_seq" for serial column "test_ptwysrqk.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --

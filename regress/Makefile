@@ -64,6 +64,9 @@ OUT := $(SQL:%.sql=%.out)
 # Print NULL values explicitly.
 PSQLOPTS = --echo-all -P null=NULL
 
+# Disable NOTICE log messages
+export PGOPTIONS := --client-min-messages=warning
+
 all:	$(OUT)
 
 clean:

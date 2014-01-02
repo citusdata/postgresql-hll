@@ -17,7 +17,6 @@ SELECT hll_set_max_sparse(512);
 (1 row)
 
 DROP TABLE IF EXISTS test_eopzdzwz;
-psql:cumulative_add_sparse_edge.sql:12: NOTICE:  table "test_eopzdzwz" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_eopzdzwz (
     recno                       SERIAL,
@@ -25,7 +24,6 @@ CREATE TABLE test_eopzdzwz (
     raw_value                   bigint,
     union_compressed_multiset   hll
 );
-psql:cumulative_add_sparse_edge.sql:19: NOTICE:  CREATE TABLE will create implicit sequence "test_eopzdzwz_recno_seq" for serial column "test_eopzdzwz.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --

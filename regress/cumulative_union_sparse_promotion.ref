@@ -16,7 +16,6 @@ SELECT hll_set_max_sparse(512);
 (1 row)
 
 DROP TABLE IF EXISTS test_bsnvqefe;
-psql:cumulative_union_sparse_promotion.sql:11: NOTICE:  table "test_bsnvqefe" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_bsnvqefe (
     recno                       SERIAL,
@@ -25,7 +24,6 @@ CREATE TABLE test_bsnvqefe (
     union_cardinality           double precision,
     union_compressed_multiset   hll
 );
-psql:cumulative_union_sparse_promotion.sql:19: NOTICE:  CREATE TABLE will create implicit sequence "test_bsnvqefe_recno_seq" for serial column "test_bsnvqefe.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --

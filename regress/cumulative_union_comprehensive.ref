@@ -7,7 +7,6 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_rhswkjtc;
-psql:cumulative_union_comprehensive.sql:6: NOTICE:  table "test_rhswkjtc" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_rhswkjtc (
     recno                       SERIAL,
@@ -16,7 +15,6 @@ CREATE TABLE test_rhswkjtc (
     union_cardinality           double precision,
     union_compressed_multiset   hll
 );
-psql:cumulative_union_comprehensive.sql:14: NOTICE:  CREATE TABLE will create implicit sequence "test_rhswkjtc_recno_seq" for serial column "test_rhswkjtc.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --
