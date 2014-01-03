@@ -63,7 +63,7 @@ NOT =	\
 OUT := $(SQL:%.sql=%.out)
 
 # Print NULL values explicitly.
-PSQLOPTS = -x --echo-all -P null=NULL
+PSQLOPTS = -X --echo-all -P null=NULL
 
 # Disable NOTICE log messages
 export PGOPTIONS := --client-min-messages=warning
