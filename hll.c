@@ -33,6 +33,8 @@
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 #include "catalog/pg_type.h"
+#include "lib/stringinfo.h"
+#include "libpq/pqformat.h"
 
 #include "MurmurHash3.h"
 
@@ -3331,4 +3333,26 @@ hll_ceil_card_unpacked(PG_FUNCTION_ARGS)
         ceilval = (int64) ceil(retval);
         PG_RETURN_INT64(ceilval);
     }
+}
+
+PG_FUNCTION_INFO_V1(hll_recv);
+Datum hll_recv(PG_FUNCTION_ARGS);
+Datum
+hll_recv(PG_FUNCTION_ARGS)
+{
+    Datum dd = DirectFunctionCall1(bytearecv, PG_GETARG_DATUM(0));
+    return dd;
+}
+
+PG_FUNCTION_INFO_V1(hll_send);
+Datum hll_send(PG_FUNCTION_ARGS);
+Datum
+hll_send(PG_FUNCTION_ARGS)
+{
+    Datum dd = PG_GETARG_DATUM(0);
+    bytea* bp = DatumGetByteaP(dd);
+    StringInfoData buf;
+    pq_begintypsend(&buf);
+    pq_sendbytes(&buf, VARDATA(bp), VARSIZE(bp) - VARHDRSZ);
+    PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }

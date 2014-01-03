@@ -32,6 +32,16 @@ RETURNS cstring
 AS 'MODULE_PATHNAME'
 LANGUAGE C STRICT IMMUTABLE;
 
+CREATE FUNCTION hll_recv(internal)
+RETURNS hll
+AS 'MODULE_PATHNAME'
+LANGUAGE C IMMUTABLE STRICT;
+
+CREATE FUNCTION hll_send(hll)
+RETURNS bytea
+AS 'MODULE_PATHNAME'
+LANGUAGE C IMMUTABLE STRICT;
+
 CREATE FUNCTION hll_typmod_in(cstring[])
 RETURNS integer
 AS 'MODULE_PATHNAME'
@@ -53,6 +63,8 @@ CREATE TYPE hll (
         OUTPUT = hll_out,
         TYPMOD_IN = hll_typmod_in,
         TYPMOD_OUT = hll_typmod_out,
+        RECEIVE = hll_recv,
+        SEND = hll_send,
         STORAGE = external
 );
 
