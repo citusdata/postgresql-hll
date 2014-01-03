@@ -33,6 +33,8 @@
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 #include "catalog/pg_type.h"
+#include "lib/stringinfo.h"
+#include "libpq/pqformat.h"
 
 #include "MurmurHash3.h"
 
@@ -2266,13 +2268,12 @@ hll_type(PG_FUNCTION_ARGS)
     size_t asz;
     multiset_t	msa;
     uint8_t type;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, &type);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, &type);
 
 	PG_RETURN_INT32(type);
 }
@@ -2287,13 +2288,12 @@ hll_log2m(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_log2nregs);
 }
@@ -2308,13 +2308,12 @@ hll_regwidth(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_nbits);
 }
@@ -2329,7 +2328,6 @@ hll_expthresh(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     size_t nbits;
     size_t nregs;
@@ -2343,7 +2341,7 @@ hll_expthresh(PG_FUNCTION_ARGS)
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
     nbits = msa.ms_nbits;
     nregs = msa.ms_nregs;
@@ -2389,13 +2387,12 @@ hll_sparseon(PG_FUNCTION_ARGS)
     bytea * ab;
     size_t asz;
     multiset_t	msa;
-    uint8_t vers;
 
     ab = PG_GETARG_BYTEA_P(0);
     asz = VARSIZE(ab) - VARHDRSZ;
 
     // Unpack the multiset.
-    vers = multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
+    multiset_unpack(&msa, (uint8_t *) VARDATA(ab), asz, NULL);
 
 	PG_RETURN_INT32(msa.ms_sparseon);
 }
@@ -3336,4 +3333,26 @@ hll_ceil_card_unpacked(PG_FUNCTION_ARGS)
         ceilval = (int64) ceil(retval);
         PG_RETURN_INT64(ceilval);
     }
+}
+
+PG_FUNCTION_INFO_V1(hll_recv);
+Datum hll_recv(PG_FUNCTION_ARGS);
+Datum
+hll_recv(PG_FUNCTION_ARGS)
+{
+    Datum dd = DirectFunctionCall1(bytearecv, PG_GETARG_DATUM(0));
+    return dd;
+}
+
+PG_FUNCTION_INFO_V1(hll_send);
+Datum hll_send(PG_FUNCTION_ARGS);
+Datum
+hll_send(PG_FUNCTION_ARGS)
+{
+    Datum dd = PG_GETARG_DATUM(0);
+    bytea* bp = DatumGetByteaP(dd);
+    StringInfoData buf;
+    pq_begintypsend(&buf);
+    pq_sendbytes(&buf, VARDATA(bp), VARSIZE(bp) - VARHDRSZ);
+    PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
 }

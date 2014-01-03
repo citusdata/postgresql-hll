@@ -8,7 +8,6 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_qfwzdmoy;
-psql:murmur_bytea.sql:7: NOTICE:  table "test_qfwzdmoy" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_qfwzdmoy (
     recno                       SERIAL,
@@ -16,7 +15,6 @@ CREATE TABLE test_qfwzdmoy (
     pre_hash_long               bytea,
     post_hash_long              bigint
 );
-psql:murmur_bytea.sql:14: NOTICE:  CREATE TABLE will create implicit sequence "test_qfwzdmoy_recno_seq" for serial column "test_qfwzdmoy.recno"
 CREATE TABLE
 \copy test_qfwzdmoy (seed, pre_hash_long, post_hash_long) from pstdin with csv header
 SELECT COUNT(*) FROM test_qfwzdmoy;

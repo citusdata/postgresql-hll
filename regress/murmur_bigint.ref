@@ -8,7 +8,6 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_seznjqbb;
-psql:murmur_bigint.sql:7: NOTICE:  table "test_seznjqbb" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_seznjqbb (
     recno                       SERIAL,
@@ -16,7 +15,6 @@ CREATE TABLE test_seznjqbb (
     pre_hash_long               bigint,
     post_hash_long              bigint
 );
-psql:murmur_bigint.sql:14: NOTICE:  CREATE TABLE will create implicit sequence "test_seznjqbb_recno_seq" for serial column "test_seznjqbb.recno"
 CREATE TABLE
 \copy test_seznjqbb (seed, pre_hash_long, post_hash_long) from pstdin with csv header
 SELECT COUNT(*) FROM test_seznjqbb;

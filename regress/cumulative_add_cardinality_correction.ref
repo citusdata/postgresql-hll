@@ -17,7 +17,6 @@ SELECT hll_set_max_sparse(0);
 (1 row)
 
 DROP TABLE IF EXISTS test_msgfjqhm;
-psql:cumulative_add_cardinality_correction.sql:12: NOTICE:  table "test_msgfjqhm" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_msgfjqhm (
     recno                       SERIAL,
@@ -25,7 +24,6 @@ CREATE TABLE test_msgfjqhm (
     raw_value                   bigint,
     union_compressed_multiset   hll
 );
-psql:cumulative_add_cardinality_correction.sql:19: NOTICE:  CREATE TABLE will create implicit sequence "test_msgfjqhm_recno_seq" for serial column "test_msgfjqhm.recno"
 CREATE TABLE
 -- Copy the CSV data into the table
 --

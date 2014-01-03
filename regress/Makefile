@@ -52,6 +52,7 @@ SQL =	\
 		cumulative_union_sparse_full_representation.sql \
 		cumulative_union_sparse_promotion.sql \
 		cumulative_union_sparse_sparse.sql \
+		copy_binary.sql \
 		$(NULL)
 
 TEST_DB = hll_regress
@@ -62,7 +63,10 @@ NOT =	\
 OUT := $(SQL:%.sql=%.out)
 
 # Print NULL values explicitly.
-PSQLOPTS = --echo-all -P null=NULL
+PSQLOPTS = -X --echo-all -P null=NULL
+
+# Disable NOTICE log messages
+export PGOPTIONS := --client-min-messages=warning
 
 all:	$(OUT)
 

@@ -10,13 +10,11 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_wdflbzfx;
-psql:agg_oob.sql:9: NOTICE:  table "test_wdflbzfx" does not exist, skipping
 DROP TABLE
 CREATE TABLE test_wdflbzfx (
     recno    SERIAL,
     v1	     hll
 );
-psql:agg_oob.sql:14: NOTICE:  CREATE TABLE will create implicit sequence "test_wdflbzfx_recno_seq" for serial column "test_wdflbzfx.recno"
 CREATE TABLE
 INSERT INTO test_wdflbzfx (recno, v1) VALUES
 -- NULL --

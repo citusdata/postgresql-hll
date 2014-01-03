@@ -8,7 +8,6 @@ SELECT hll_set_output_version(1);
 (1 row)
 
 DROP TABLE IF EXISTS test_qiundgkm;
-psql:typmod.sql:7: NOTICE:  table "test_qiundgkm" does not exist, skipping
 DROP TABLE
 -- Using all defaults.
 CREATE TABLE test_qiundgkm (v1 hll);
