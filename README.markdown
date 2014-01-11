@@ -372,7 +372,7 @@ Build
 
 Specify versions:
 
-    export VER=2.9.0
+    export VER=2.10.0
     export PGSHRT=91
 
 Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
@@ -390,11 +390,11 @@ Execute rpmbuild:
 
 Install RPM:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-2.9.0-0.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-2.10.0-0.x86_64.rpm
 
 And if you want the debugging build:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-debuginfo-2.9.0-0.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-debuginfo-2.10.0-0.x86_64.rpm
 
 
 ## From source ##

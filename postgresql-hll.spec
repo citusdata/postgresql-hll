@@ -19,7 +19,7 @@
 
 Summary: Aggregate Knowledge HyperLogLog PostgreSQL extension.
 Name: postgresql%{shortversion}-hll
-Version: 2.9.0
+Version: 2.10.0
 Release: 0
 License: Apache License, Version 2.0
 URL: https://github.com/aggregateknowledge/postgresql-hll
@@ -67,7 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 %{pgbaseinstdir}/lib/hll.so
 
 %changelog
-* Mon Dev 16 2013 Timon Karnezos <timon.karnezos@gmail.com> - 2.9.0-0
+* Fri Jan 10 2014 Timon Karnezos <timon.karnezos@gmail.com> - 2.10.0-0
+- added binary IO type for hll
+* Mon Dec 16 2013 Timon Karnezos <timon.karnezos@gmail.com> - 2.9.0-0
 - bitstream_pack fixed to write one byte at a time to avoid writing to unallocated memory
 * Tue Jul 16 2013 Timon Karnezos <timon.karnezos@gmail.com> - 2.8.0-0
 - hll_add_agg now returns hll_empty on input of an empty set

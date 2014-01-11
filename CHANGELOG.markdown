@@ -1,3 +1,7 @@
+2014-01-10
+==========
+v2.10.0 - Merged [PR #17](https://github.com/aggregateknowledge/postgresql-hll/pull/17), cleaned up compiler warnings and test cruft, added binary IO type for hll.
+
 2013-12-16
 ==========
 v2.9.0 - Fixed [issue #16](https://github.com/aggregateknowledge/postgresql-hll/issues/16), `bitstream_pack` fixed to write one byte at a time to avoid writing to unallocated memory.
