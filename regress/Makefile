@@ -72,6 +72,7 @@ all:	$(OUT)
 
 clean:
 	rm -f $(OUT)
+	rm -f binary.dat
 
 # If a matching testdata file exists use it as standard input.
 # Otherwise the test doesn't need data on stdin.

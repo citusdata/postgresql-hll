@@ -8,13 +8,13 @@ INSERT INTO test_binary(id,v1) VALUES (1, hll_empty() || hll_hash_text('A'));
 
 SELECT hll_cardinality(v1) FROM test_binary;
 
-\COPY test_binary TO 'binary.dat' WITH (FORMAT binary)
+\COPY test_binary TO 'binary.dat' WITH (FORMAT "binary")
 
 DELETE FROM test_binary;
 
 SELECT hll_cardinality(v1) FROM test_binary;
 
-\COPY test_binary FROM 'binary.dat' WITH (FORMAT binary)
+\COPY test_binary FROM 'binary.dat' WITH (FORMAT "binary")
 
 SELECT hll_cardinality(v1) FROM test_binary;
 
