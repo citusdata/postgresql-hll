@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # The following lines are from the postgresql90 spec file, postgresql-9.0.spec
-%define shortversion 91
-%define majorversion 9.1
+%define shortversion 93
+%define majorversion 9.3
 %define	pgbaseinstdir	/usr/pgsql-%{majorversion}
 
 Summary: Aggregate Knowledge HyperLogLog PostgreSQL extension.
@@ -48,7 +48,7 @@ mkdir -p $RPM_BUILD_ROOT
 
 mkdir -p $RPM_BUILD_ROOT%{pgbaseinstdir}/share/extension
 install -m644 hll.control $RPM_BUILD_ROOT%{pgbaseinstdir}/share/extension
-install -m644 hll--1.0.sql $RPM_BUILD_ROOT%{pgbaseinstdir}/share/extension
+install -m644 hll--2.10.0.sql $RPM_BUILD_ROOT%{pgbaseinstdir}/share/extension
 
 mkdir -p $RPM_BUILD_ROOT%{pgbaseinstdir}/lib
 install -m755 hll.so $RPM_BUILD_ROOT%{pgbaseinstdir}/lib
@@ -62,7 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %dir %{pgbaseinstdir}/share/extension
 %{pgbaseinstdir}/share/extension/hll.control
-%{pgbaseinstdir}/share/extension/hll--1.0.sql
+%{pgbaseinstdir}/share/extension/hll--2.10.0.sql
 
 %{pgbaseinstdir}/lib/hll.so
 
