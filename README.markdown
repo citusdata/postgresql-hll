@@ -359,9 +359,7 @@ Compatibility
 
 This module has been tested on:
 
-* **Centos 5/6 x86_64**
-* **Postgres 9.0, 9.1, 9.2**
-* **gcc 4.4.6**
+* **Postgres 9.0, 9.1, 9.2, 9.3**
 
 If you end up needing to change something to get this running on another system, send us the diff and we'll try to work it in!
 
@@ -373,11 +371,11 @@ Build
 Specify versions:
 
     export VER=2.10.0
-    export PGSHRT=91
+    export PGSHRT=93
 
 Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
 
-    PG_CONFIG = /usr/pgsql-9.1/bin/pg_config
+    PG_CONFIG = /usr/pgsql-9.3/bin/pg_config
 
 Create a tarball from the source tree:
 
@@ -401,15 +399,17 @@ And if you want the debugging build:
 
 If you aren't using the `pg_config` on your path (or don't have it on your path), specify the correct one to build against:
 
-        PG_CONFIG=/usr/pgsql-9.1/bin/pg_config make
+        PG_CONFIG=/usr/pgsql-9.3/bin/pg_config make
 
 Or to build with what's on your path, just:
 
         make
 
-If you're building on OS X with `clang` as the default C/C++ compiler, you'll need to specify `gcc` as your compiler:
+If you wish to build with an alternate C/C++ compiler, say `gcc`, then you can specify it like so:
 
         make CC=gcc CXX=gcc
+
+(This may be useful if an older `clang` is the default compiler.)
 
 Or for the debug build:
 
@@ -433,7 +433,7 @@ And then just verify it's there:
                             List of installed extensions
           Name   | Version |   Schema   |            Description
         ---------+---------+------------+-----------------------------------
-         hll     | 1.0     | public     | type for storing hyperloglog data
+         hll     | 2.10.0  | public     | type for storing hyperloglog data
          plpgsql | 1.0     | pg_catalog | PL/pgSQL procedural language
         (2 rows)
 
