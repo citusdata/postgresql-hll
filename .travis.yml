@@ -5,13 +5,14 @@ language: c
 #  - PGVERSION=9.2
 #  - PGVERSION=9.3
 
-#before_script:
+before_script:
 #  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
 #  - sudo /etc/init.d/postgresql stop
 #  - sudo /etc/init.d/postgresql start $PGVERSION
+   - apt-get postgresql-server-dev-all
 
 addons:
-  postgresql: "9.3"
+  postgresql: "9.1"
 
 
 script:
