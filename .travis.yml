@@ -2,19 +2,19 @@ language: c
 
 #env:
 #  - PGVERSION=9.1
-#  - PGVERSION=9.2
+  - PGVERSION=9.2
 #  - PGVERSION=9.3
 
 before_script:
-#  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
-#  - sudo /etc/init.d/postgresql stop
-#  - sudo /etc/init.d/postgresql start $PGVERSION
-   - sudo apt-get update
-   - sudo apt-get install postgresql-server-dev-9.1
-   - sudo apt-get install postgresql-common
+#  - sudo apt-get update
+  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
+  - sudo /etc/init.d/postgresql stop
+  - sudo /etc/init.d/postgresql start $PGVERSION
+  - sudo apt-get install postgresql-server-dev-$PGVERSION
+  - sudo apt-get install postgresql-common
    
-addons:
-  postgresql: "9.1"
+#addons:
+#  postgresql: "9.1"
 
 
 script:
@@ -24,4 +24,4 @@ script:
   - sudo make install
   - createdb hll_regress
   - psql -c "create extension hll" hll_regress
-#  - make -C regress
+  - make -C regress
