@@ -1,0 +1,19 @@
+language: c
+
+env:
+  - PGVERSION=9.1
+  - PGVERSION=9.2
+  - PGVERSION=9.3
+
+before_script:
+  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
+  - sudo /etc/init.d/postgresql stop
+  - sudo /etc/init.d/postgresql start $PGVERSION
+  - createdb hll_regress
+  
+script:
+  - make
+  - sudo make install
+  - psql -c "create extension hll" hll_regress
+  - cd regress
+  - make
