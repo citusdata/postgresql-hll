@@ -10,8 +10,8 @@ before_script:
 #  - sudo /etc/init.d/postgresql stop
 #  - sudo /etc/init.d/postgresql start $PGVERSION
    - sudo apt-get update
-   - sudo apt-get install postgresql-server-dev-all
-   - sudo apt-get install postgresql-contrib
+   - sudo apt-get install postgresql-server-dev-9.1
+   - sudo apt-get install postgresql-common
    
 addons:
   postgresql: "9.1"
@@ -19,8 +19,7 @@ addons:
 
 script:
   - pg_config
-  - ls -l `pg_config --pgxs`
-  - ls -l `pg_config --includedir`
+  - ls -l /usr/share/postgresql/9.1 /usr/share/postgresql/9.1/extension
   - make
   - sudo make install
   - createdb hll_regress
