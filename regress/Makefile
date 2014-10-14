@@ -83,6 +83,6 @@ clean:
 	  cat ../testdata/$*.csv | \
 	  psql $(PSQLOPTS) $(TEST_DB) -f $*.sql &> $*.out && diff -u $*.ref $*.out; \
 	else \
-	  psql $(PSQLOPTS) $(TEST_DB) -f $*.sql -q &> $*.out; \
+	  psql $(PSQLOPTS) $(TEST_DB) -f $*.sql -q 2>&1 1> $*.out; \
     fi
 
