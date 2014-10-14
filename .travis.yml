@@ -17,4 +17,6 @@ script:
   - make && sudo make install
   - psql -c "create extension hll" hll_regress
   - make -C regress add_agg.out
+  - cat regress/add_agg.ref
+  - cat regress/add_agg.out
   - diff -u regress/add_agg.ref regress/add_agg.out
