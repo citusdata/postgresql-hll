@@ -9,11 +9,10 @@ before_script:
   - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
   - sudo /etc/init.d/postgresql stop
   - sudo /etc/init.d/postgresql start $PGVERSION
-  - createdb hll_regress
   
 script:
   - make
   - sudo make install
+  - createdb hll_regress
   - psql -c "create extension hll" hll_regress
-  - cd regress
-  - make
+  - make -C regress
