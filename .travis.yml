@@ -1,22 +1,23 @@
 language: c
 
-#env:
-#  - PGVERSION=9.1
-  - PGVERSION=9.2
-#  - PGVERSION=9.3
-
-before_script:
-#  - sudo apt-get update
-  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
-  - sudo /etc/init.d/postgresql stop
-  - sudo /etc/init.d/postgresql start $PGVERSION
-  - sudo apt-get install postgresql-server-dev-$PGVERSION
-  - sudo apt-get install postgresql-common
-   
 #addons:
 #  postgresql: "9.1"
 
+env:
+  - PGVERSION=9.1
+  - PGVERSION=9.2
+  - PGVERSION=9.3
 
+
+before_script:
+  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
+  - sudo /etc/init.d/postgresql stop
+  - sudo /etc/init.d/postgresql start $PGVERSION
+#  - sudo apt-get update
+  - sudo apt-get install postgresql-server-dev-$PGVERSION
+  - sudo apt-get install postgresql-common
+
+  
 script:
   - pg_config
   - ls -l /usr/share/postgresql/9.1 /usr/share/postgresql/9.1/extension
