@@ -6,18 +6,15 @@ env:
 #  - PGVERSION=9.3
 
 before_script:
-  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH
-  - sudo /etc/init.d/postgresql stop
-  - sudo /etc/init.d/postgresql start $PGVERSION
-  - sudo apt-get install postgresql-server-dev-$PGVERSION
-  - sudo apt-get install postgresql-common
-
+  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH     # Add our chosen PG version to the path
+  - sudo /etc/init.d/postgresql stop                         # Stop whichever version of PG that travis started
+  - sudo /etc/init.d/postgresql start $PGVERSION             # Start the version of PG that we want to test
+  - sudo apt-get install postgresql-server-dev-$PGVERSION    # Required for PGXS
+  - sudo apt-get install postgresql-common                   # Required for extension support files
+  - createdb hll_regress                                     # Create the test database
   
 script:
-  - echo $SHELL
-  - bash --version
   - make && sudo make install
-  - createdb hll_regress
   - psql -c "create extension hll" hll_regress
   - make -C regress add_agg.out
-  - cat regress/add_agg.out
+  - diff -u regress/add_agg.ref regress/add_agg.out
