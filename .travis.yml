@@ -1,8 +1,8 @@
 language: c
 
 env:
-  - PGVERSION=9.1
-  - PGVERSION=9.2
+#  - PGVERSION=9.1
+#  - PGVERSION=9.2
   - PGVERSION=9.3
 
 before_script:
@@ -12,6 +12,8 @@ before_script:
   
 script:
   - pg_config
+  - ls -l `pg_config --pgxs`
+  - ls -l `pg_config --includedir`
   - make
   - sudo make install
   - createdb hll_regress
