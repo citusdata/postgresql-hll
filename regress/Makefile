@@ -19,60 +19,29 @@
 # ../testdata/foo.csv	- (optional data file for \copy from pstdin)
 # foo.out				- actual output
 
-SQL =	\
-		add_agg.sql \
-		auto_sparse.sql \
-		explicit_thresh.sql \
-		nosparse.sql \
-		agg_oob.sql \
-		cast_shape.sql \
-		scalar_oob.sql \
-		typmod.sql \
-		typmod_insert.sql \
-		hash.sql \
-		hash_any.sql \
-		murmur_bigint.sql \
-		murmur_bytea.sql \
-		equal.sql \
-		notequal.sql \
-		union_op.sql\
-		card_op.sql \
-		meta_func.sql \
-		transaction.sql \
-		storedproc.sql \
-		cumulative_add_cardinality_correction.sql \
-		cumulative_add_comprehensive_promotion.sql \
-		cumulative_add_sparse_edge.sql \
-		cumulative_add_sparse_random.sql \
-		cumulative_add_sparse_step.sql \
-		cumulative_union_comprehensive.sql \
-		cumulative_union_explicit_explicit.sql \
-		cumulative_union_explicit_promotion.sql \
-		cumulative_union_probabilistic_probabilistic.sql \
-		cumulative_union_sparse_full_representation.sql \
-		cumulative_union_sparse_promotion.sql \
-		cumulative_union_sparse_sparse.sql \
-		copy_binary.sql \
-		$(NULL)
+PSQL      = psql
+TEST_DB   = hll_regress
 
-TEST_DB = hll_regress
+SQL       = $(wildcard *.sql)
+OUT      := $(SQL:%.sql=%.out)
 
-NOT =	\
-		$(NULL)
-
-OUT := $(SQL:%.sql=%.out)
-
-# Print NULL values explicitly.
-PSQLOPTS = -X --echo-all -P null=NULL
-
-# Disable NOTICE log messages
-export PGOPTIONS := --client-min-messages=warning
+PSQLOPTS  = -X --echo-all -P null=NULL       # Print NULL values explicitly.
+PGOPTIONS = --client-min-messages=warning    # Output WARNINGS
 
 all:	$(OUT)
+	@find . -maxdepth 1 -name '*.diff' -print -quit > failures
+	@if test -s failures; then \
+		echo ERROR: `ls -1 *.diff | wc -l` / `ls -1 *.sql | wc -l` tests failed; \
+		echo; \
+		cat *.diff; \
+		exit 1; \
+	else \
+		rm failures; \
+		echo `ls -1 *.out | wc -l` / `ls -1 *.sql | wc -l` tests passed; \
+	fi
 
 clean:
-	rm -f $(OUT)
-	rm -f binary.dat
+	rm -f binary.dat *.out *.diff
 
 # If a matching testdata file exists use it as standard input.
 # Otherwise the test doesn't need data on stdin.
@@ -80,9 +49,15 @@ clean:
 %.out:	%.sql %.ref
 	@echo $*
 	@if test -f ../testdata/$*.csv; then \
-	  cat ../testdata/$*.csv | \
-	  psql $(PSQLOPTS) $(TEST_DB) -f $*.sql &> $*.out && diff -u $*.ref $*.out; \
+	  PGOPTIONS=$(PGOPTIONS) $(PSQL) $(PSQLOPTS) $(TEST_DB) -f $*.sql < ../testdata/$*.csv > $*.out 2>&1; \
 	else \
-	  psql $(PSQLOPTS) $(TEST_DB) -f $*.sql -q 1> $*.out 2>&1; \
-    fi
+	  PGOPTIONS=$(PGOPTIONS) $(PSQL) $(PSQLOPTS) $(TEST_DB) -f $*.sql > $*.out 2>&1; \
+	fi
+	@diff -u $*.ref $*.out >> $*.diff || status=1
+	@if test -s $*.diff; then \
+		echo " FAIL"; \
+	else \
+		echo " PASS"; \
+		rm -f $*.diff; \
+	fi
 
