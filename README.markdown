@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cwelton/postgresql-hll.svg?branch=master)](https://travis-ci.org/cwelton/postgresql-hll)
+
 Overview
 ========
 

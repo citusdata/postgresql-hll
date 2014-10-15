@@ -47,7 +47,7 @@ clean:
 # Otherwise the test doesn't need data on stdin.
 #
 %.out:	%.sql %.ref
-	@echo $*
+	@echo -n $*
 	@if test -f ../testdata/$*.csv; then \
 	  PGOPTIONS=$(PGOPTIONS) $(PSQL) $(PSQLOPTS) $(TEST_DB) -f $*.sql < ../testdata/$*.csv > $*.out 2>&1; \
 	else \
@@ -55,9 +55,9 @@ clean:
 	fi
 	@diff -u $*.ref $*.out >> $*.diff || status=1
 	@if test -s $*.diff; then \
-		echo " FAIL"; \
+		echo " .. FAIL"; \
 	else \
-		echo " PASS"; \
+		echo " .. PASS"; \
 		rm -f $*.diff; \
 	fi
 
