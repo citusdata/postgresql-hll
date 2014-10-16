@@ -2,3 +2,6 @@
 *.o
 *.so
 *.out
+*.diff
+regress/binary.dat
+regress/failures
