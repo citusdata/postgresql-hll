@@ -4,6 +4,7 @@ env:
   - PGVERSION=9.1
   - PGVERSION=9.2
   - PGVERSION=9.3
+  - PGVERSION=9.4
 
 before_script:
   - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH     # Add our chosen PG version to the path
