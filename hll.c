@@ -1967,7 +1967,7 @@ multiset_card(multiset_t const * i_msp)
             else if (estimator <= large_estimator_cutoff)
                 retval = estimator;
             else
-                return (-1 * two_to_l) * log(1.0 - (estimator/two_to_l));
+                return (-1 * (int64_t)two_to_l) * log(1.0 - (estimator/two_to_l));
         }
         break;
 
