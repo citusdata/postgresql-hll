@@ -1,0 +1,47 @@
+{
+   "name": "hll",
+   "abstract": "HyperLogLog data structures as a native data type",
+   "description": "This Postgres module introduces a new data type hll which is a HyperLogLog data structure. HyperLogLog is a fixed-size, set-like structure used for distinct value counting with tunable precision.",
+   "version": "2.10.0",
+   "maintainer": [
+      "Timon Karnezos <timon.karnezos@gmail.com>"
+   ],
+   "license": "apache_2_0",
+   "provides": {
+      "hll": {
+         "abstract": "HyperLogLog data structures as a native data type",
+         "file": "hll.c",
+         "docfile": "doc/hll.mmd",
+         "version": "2.10.0"
+      }
+   },
+   "prereqs": {
+      "runtime": {
+         "requires": {
+            "PostgreSQL": "8.4.0",
+            "plpgsql": 0
+         }
+      }
+   },
+   "resources": {
+      "bugtracker": {
+         "web": "https://github.com/aggregateknowledge/postgresql-hll/issues"
+      },
+      "repository": {
+        "url":  "git://github.com/aggregateknowledge/postgresql-hll.git",
+        "web":  "https://github.com/aggregateknowledge/postgresql-hll/",
+        "type": "git"
+      }
+   },
+   "generated_by": "David E. Wheeler",
+   "meta-spec": {
+      "version": "1.0.0",
+      "url": "http://pgxn.org/meta/spec.txt"
+   },
+   "tags": [
+      "hyperloglog",
+      "hll",
+      "distinct",
+      "count"
+   ]
+}
