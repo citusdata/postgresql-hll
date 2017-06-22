@@ -1,3 +1,7 @@
+2017-06-22
+==========
+v2.10.2 - Updated for PostgreSQL 10
+
 2016-09-22
 ==========
 v2.10.1 - Updated for PostgreSQL 9.4 and 9.5.
