@@ -29,6 +29,9 @@
 #include <inttypes.h>
 #include "utils/array.h"
 #include "utils/bytea.h"
+#if (PG_VERSION_NUM >= 100000)
+#include "utils/fmgrprotos.h"
+#endif
 #include "utils/int8.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
