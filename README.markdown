@@ -7,7 +7,7 @@ This Postgres module introduces a new data type `hll` which is a [HyperLogLog](h
 
 In addition to the algorithm proposed in the [original paper](http://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf), this implementation is augmented to improve its accuracy and memory use without sacrificing much speed. See below for more details.
 
-This `postgresql-hll` extension was originally developed by the Science team Aggregate Knowledge, now a [Neustar](https://research.neustar.biz) company. Please see the [acknowledgements](#acknowledgements) section below for details about its contributors. 
+This `postgresql-hll` extension was originally developed by the Science team from Aggregate Knowledge, now a part of [Neustar](https://research.neustar.biz). Please see the [acknowledgements](#acknowledgements) section below for details about its contributors. 
 
 Algorithms
 ----------
