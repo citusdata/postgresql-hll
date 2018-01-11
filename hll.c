@@ -18,6 +18,9 @@
 #if defined(__APPLE__)
 #include <libkern/OSByteOrder.h>
 #define bswap_64 OSSwapInt64
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
+#include <sys/endian.h>
+#define bswap_64 bswap64
 #else
 #include <byteswap.h>
 #endif
