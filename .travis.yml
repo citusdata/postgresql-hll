@@ -9,12 +9,12 @@ env:
   - PGVERSION=9.6
   - PGVERSION=10
 before_script:
-  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH     # Add our chosen PG version to the path
   - sudo /etc/init.d/postgresql stop                         # Stop whichever version of PG that travis started
-  - sudo /etc/init.d/postgresql start $PGVERSION             # Start the version of PG that we want to test
   - sudo apt-get update -qq                                  # Retrieves new list of packages
   - sudo apt-get install postgresql-server-dev-$PGVERSION    # Required for PGXS
   - sudo apt-get install postgresql-common                   # Required for extension support files
+  - export PATH=/usr/lib/postgresql/$PGVERSION/bin:$PATH     # Add our chosen PG version to the path
+  - sudo /etc/init.d/postgresql start $PGVERSION             # Start the version of PG that we want to test
   - createdb hll_regress                                     # Create the test database
 script:
   - make && sudo make install
