@@ -12,7 +12,11 @@ matrix:
           packages:
           - postgresql-10
           - postgresql-client-10
-      
+
+before_script:
+  - sudo apt-get install postgresql-server-dev-all
+  - sudo apt-get install postgresql-common
+  
 script:
   - make && sudo make install
   - psql -U postgres -c "create extension hll" travis
