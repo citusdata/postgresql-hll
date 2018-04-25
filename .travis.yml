@@ -17,5 +17,5 @@ before_script:
   
 script:
   - make && sudo make install
-  - psql -c "create extension hll" hll_regress
+  - psql -c "create extension hll" hll_regress -U postgres
   - make -C regress
