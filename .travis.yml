@@ -13,10 +13,7 @@ matrix:
           - postgresql-10
           - postgresql-client-10
       
-
-before_script:
-  - createdb hll_regress                                     # Create the test database
 script:
   - make && sudo make install
-  - psql -c "create extension hll" hll_regress
+  - psql -O travis -p 5433 -c "create extension hll" travis
   - make -C regress
