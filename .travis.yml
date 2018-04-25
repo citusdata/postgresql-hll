@@ -16,7 +16,7 @@ matrix:
 before_script:
   - sudo apt-get install postgresql-server-dev-all
   - sudo apt-get install postgresql-common
-  - sudo psql -c 'create database hll_regress;' -U postgres
+  - psql -c 'create database hll_regress;' -U postgres
 
   
 script:
