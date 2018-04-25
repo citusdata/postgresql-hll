@@ -15,5 +15,5 @@ matrix:
       
 script:
   - make && sudo make install
-  - psql -u postgres -c "create extension hll" travis
+  - psql -U postgres -c "create extension hll" travis
   - make -C regress
