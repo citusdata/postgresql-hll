@@ -7,7 +7,7 @@ env:
   - PGVERSION=9.6
   - PGVERSION=10
 before_script:
-  - sudo /etc/init.d/postgresql stop                         # Stop whichever version of PG that travis started
+  - sudo /etc/init.d/postgresql stop 9.2                     # Stop whichever version of PG that travis started
   - sudo apt-get update -qq                                  # Retrieves new list of packages
   - sudo apt-get install postgresql-server-dev-$PGVERSION    # Required for PGXS
   - sudo apt-get install postgresql-common                   # Required for extension support files
