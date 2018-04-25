@@ -19,5 +19,5 @@ before_script:
   
 script:
   - make && sudo make install
-  - psql -U postgres -c "create extension hll" travis
+  - psql -U postgres -p 5432 -c "create extension hll" travis
   - make -C regress
