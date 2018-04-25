@@ -16,8 +16,10 @@ matrix:
 before_script:
   - sudo apt-get install postgresql-server-dev-all
   - sudo apt-get install postgresql-common
+  - psql -c 'create database hll_regress;' -U postgres
+
   
 script:
   - make && sudo make install
-  - psql -U postgres -p 5432 -c "create extension hll" travis
+  - psql -c "create extension hll" hll_regress
   - make -C regress
