@@ -180,7 +180,7 @@ We've added a few operators to make using `hll`s less cumbersome/verbose. They'r
 Hashing
 -------
 
-You'll notice that all the calls to `hll_add` or `||` involve wrapping the input value in a `hll_hash_[type]` call; it's aboslutely crucial that you hash your input values to `hll` structures. For more on this, see the section below titled 'The Importance of Hashing'.
+You'll notice that all the calls to `hll_add` or `||` involve wrapping the input value in a `hll_hash_[type]` call; it's absolutely crucial that you hash your input values to `hll` structures. For more on this, see the section below titled 'The Importance of Hashing'.
 
 The hashing functions we've made available are listed below:
 
