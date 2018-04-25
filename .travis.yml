@@ -7,15 +7,23 @@ matrix:
     # works on Precise and Trusty
     - os: linux
       addons:
-        postgresql: "10"
+        postgresql: 10
+        apt:
+          packages:
+          - postgresql-10
+          - postgresql-client-10
+        
+env:
+  global:
+  - PGPORT=5433
 
 before_script:
   - sudo apt-get install postgresql-server-dev-all
   - sudo apt-get install postgresql-common
-  - psql -c 'create database hll_regress;' -U postgres
+  - sudo psql -c 'create database hll_regress;' -U postgres
 
   
 script:
   - make && sudo make install
-  - psql -c "create extension hll" hll_regress -U postgres
+  - sudo psql -c "create extension hll" hll_regress -U postgres
   - make -C regress
