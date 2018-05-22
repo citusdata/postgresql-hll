@@ -37,7 +37,7 @@ Our motivation for augmenting the original HLL algorithm went something like thi
 
 The first addition to the original HLL algorithm came from realizing that 1,280 bytes is the size of 160 64-bit integers. So, if we wanted more accuracy at low cardinalities, we could just keep an explicit set of the inputs as a sorted list of 64-bit integers until we hit the 161st distinct value. This would give us the true representation of the distinct values in the stream while requiring the same amount of memory. (This is the `EXPLICIT` algorithm.)
 
-The second came from the realization that we didn't need to store registers whose value was zero. We could simply represent the set of registers that had non-zero values as a map from index to values. This is map is stored as a list of index-value pairs that are bit-packed "short words" of length `log2m + regwidth`. (This is the `SPARSE` algorithm.)
+The second came from the realization that we didn't need to store registers whose value was zero. We could simply represent the set of registers that had non-zero values as a map from index to values. This map is stored as a list of index-value pairs that are bit-packed "short words" of length `log2m + regwidth`. (This is the `SPARSE` algorithm.)
 
 Combining these two augmentations, we get a "promotion hierarchy" that allows the algorithm to be tuned for better accuracy, memory, or performance.
 
