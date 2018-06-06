@@ -11,35 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-MODULE_big = hll
-OBJS =		\
-			hll.o \
-			MurmurHash3.o \
-			$(NULL)
-
 EXTENSION = hll
-DATA =		\
-			hll--2.10.sql \
-			$(NULL)
+EXTVERSION = 2.10
 
-EXTRA_CLEAN += -r $(RPM_BUILD_ROOT)
+DATA_built = $(EXTENSION)--$(EXTVERSION).sql
+DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
-PG_CPPFLAGS += -fPIC
-hll.o: override CFLAGS += -std=c99
-MurmurHash3.o: override CC = $(CXX)
+MODULE_big = $(EXTENSION)
+OBJS = src/hll.o \
+       src/MurmurHash3.o
 
-ifdef DEBUG
-COPT		+= -O0
-CXXFLAGS	+= -g -O0
-endif
+PG_CPPFLAGS = -fPIC -Wall -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude -I$(libpq_srcdir)
 
-SHLIB_LINK	+= -lstdc++
+REGRESS = setup $(filter-out setup,$(patsubst sql/%.sql,%,$(sort $(wildcard sql/*.sql))))
 
-ifndef PG_CONFIG
-PG_CONFIG = pg_config
-endif
-
-PGXS := $(shell $(PG_CONFIG) --pgxs)
+PG_CONFIG ?= pg_config
+PGXS = $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
+
+src/hll.o: override CFLAGS += -std=c99
+
+$(EXTENSION)--2.10.sql: $(EXTENSION).sql
+	cat $^ > $@
 
