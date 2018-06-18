@@ -1,7 +1,10 @@
-.gitignore
 *.o
 *.so
-*.out
-*.diff
-regress/binary.dat
-regress/failures
+binary.dat
+regression.out
+regression.diffs
+results
+
+hll--?.?.sql
+hll--?.?-*.sql
+!hll--?.?-*--?.?-*.sql
