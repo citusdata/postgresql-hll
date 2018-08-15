@@ -90,7 +90,6 @@ LANGUAGE C STRICT IMMUTABLE;
 
 CREATE TYPE hll_hashval (
         INTERNALLENGTH = 8,
-        PASSEDBYVALUE,
         ALIGNMENT = double,
         INPUT = hll_hashval_in,
         OUTPUT = hll_hashval_out
