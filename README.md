@@ -363,9 +363,11 @@ Compatibility
 
 This module has been tested on:
 
-* **Postgres 9.0, 9.1, 9.2, 9.3, 9.4**
+* **Postgres 9.4, 9.5, 9.6, 10, 11**
 
 If you end up needing to change something to get this running on another system, send us the diff and we'll try to work it in!
+
+Note: At the moment postgresql-hll does not wotk with 32bit systems.
 
 Build
 =====
@@ -374,12 +376,12 @@ Build
 
 Specify versions:
 
-    export VER=2.10.0
-    export PGSHRT=93
+    export VER=2.11
+    export PGSHRT=11
 
 Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
 
-    PG_CONFIG = /usr/pgsql-9.3/bin/pg_config
+    PG_CONFIG = /usr/pgsql-11/bin/pg_config
 
 Create a tarball from the source tree:
 
@@ -392,18 +394,18 @@ Execute rpmbuild:
 
 Install RPM:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-2.10.0-0.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-2.11.x86_64.rpm
 
 And if you want the debugging build:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql91-hll-debuginfo-2.10.0-0.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-debuginfo-2.11.x86_64.rpm
 
 
 ## From source ##
 
 If you aren't using the `pg_config` on your path (or don't have it on your path), specify the correct one to build against:
 
-        PG_CONFIG=/usr/pgsql-9.3/bin/pg_config make
+        PG_CONFIG=/usr/pgsql-9.11/bin/pg_config make
 
 Or to build with what's on your path, just:
 
@@ -437,28 +439,21 @@ And then just verify it's there:
                             List of installed extensions
           Name   | Version |   Schema   |            Description
         ---------+---------+------------+-----------------------------------
-         hll     | 2.10.0  | public     | type for storing hyperloglog data
+         hll     | 2.11    | public     | type for storing hyperloglog data
          plpgsql | 1.0     | pg_catalog | PL/pgSQL procedural language
         (2 rows)
 
 Tests
 =====
 
-Create the regression database:
+Start a PostgreSQL server running in default port:
 
-    psql -d postgres
-    CREATE DATABASE hll_regress;
+    pg_ctl -D data -l logfile -c start
+    initdb -D data
 
-Create the extension in the created database:
+Run the tests:
 
-    psql -d hll_regress
-    CREATE EXTENSION hll;
-
-Run the regression:
-
-    cd regress
-    make clean
-    make -j5
+    make installcheck
 
 * * * * * * * * * * * * * * * * * * * * * * * * *
 
