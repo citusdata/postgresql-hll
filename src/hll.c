@@ -540,7 +540,7 @@ check_metadata(multiset_t const * i_omp, multiset_t const * i_imp)
         ereport(ERROR,
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("register width does not match: "
-                        "source uses %ld and dest uses %ld",
+                        "source uses %zu and dest uses %zu",
                         i_imp->ms_nbits, i_omp->ms_nbits)));
     }
 
@@ -549,7 +549,7 @@ check_metadata(multiset_t const * i_omp, multiset_t const * i_imp)
         ereport(ERROR,
                 (errcode(ERRCODE_DATA_EXCEPTION),
                  errmsg("register count does not match: "
-                        "source uses %ld and dest uses %ld",
+                        "source uses %zu and dest uses %zu",
                         i_imp->ms_nregs, i_omp->ms_nregs)));
     }
 
@@ -680,7 +680,7 @@ multiset_tostring(multiset_t const * i_msp)
     // with the automatically determined value.
     //
     if (expthresh == -1)
-        snprintf(expbuf, sizeof(expbuf), INT64_FORMAT "(%ld)", expthresh, expval);
+        snprintf(expbuf, sizeof(expbuf), INT64_FORMAT "(%zu)", expthresh, expval);
     else
         snprintf(expbuf, sizeof(expbuf), INT64_FORMAT, expthresh);
 
@@ -697,7 +697,7 @@ multiset_tostring(multiset_t const * i_msp)
     {
     case MST_EMPTY:
         used += snprintf(retstr, len, "EMPTY, "
-                         "nregs=%ld, nbits=%ld, expthresh=%s, sparseon=%ld",
+                         "nregs=%zu, nbits=%zu, expthresh=%s, sparseon=%zu",
                          nregs, nbits, expbuf, sparseon);
         break;
     case MST_EXPLICIT:
@@ -707,15 +707,15 @@ multiset_tostring(multiset_t const * i_msp)
             char linebuf[1024];
             ssize_t rv;
 
-            used += snprintf(retstr, len, "EXPLICIT, %ld elements, "
-                             "nregs=%ld, nbits=%ld, "
-                             "expthresh=%s, sparseon=%ld:",
+            used += snprintf(retstr, len, "EXPLICIT, %zu elements, "
+                             "nregs=%zu, nbits=%zu, "
+                             "expthresh=%s, sparseon=%zu:",
                              size, nregs, nbits, expbuf, sparseon);
             for (size_t ii = 0; ii < size; ++ii)
             {
                 int64_t val = * (int64_t const *) & msep->mse_elems[ii];
                 rv = snprintf(linebuf, sizeof(linebuf),
-                              "\n%ld: %20" PRIi64 " ",
+                              "\n%zu: %20" PRIi64 " ",
                               ii, val);
                 // Do we need to reallocate the return buffer?
                 if (rv + used > len - 1)
@@ -739,16 +739,16 @@ multiset_tostring(multiset_t const * i_msp)
             size_t ndx = 0;
 
             used += snprintf(retstr, len,
-                             "COMPRESSED, %ld filled "
-                             "nregs=%ld, nbits=%ld, expthresh=%s, "
-                             "sparseon=%ld:",
+                             "COMPRESSED, %zu filled "
+                             "nregs=%zu, nbits=%zu, expthresh=%s, "
+                             "sparseon=%zu:",
                              numfilled(i_msp),
                              nregs, nbits, expbuf, sparseon);
 
             for (size_t rr = 0; rr < nrows; ++rr)
             {
                 size_t pos = 0;
-                pos = snprintf(linebuf, sizeof(linebuf), "\n%4ld: ", ndx);
+                pos = snprintf(linebuf, sizeof(linebuf), "\n%4zu: ", ndx);
                 for (size_t cc = 0; cc < rowsz; ++cc)
                 {
                     pos += snprintf(&linebuf[pos], sizeof(linebuf) - pos,
@@ -769,7 +769,7 @@ multiset_tostring(multiset_t const * i_msp)
         break;
     case MST_UNDEFINED:
         used += snprintf(retstr, len, "UNDEFINED "
-                         "nregs=%ld, nbits=%ld, expthresh=%s, sparseon=%ld",
+                         "nregs=%zu, nbits=%zu, expthresh=%s, sparseon=%zu",
                          nregs, nbits, expbuf, sparseon);
         break;
     default:
