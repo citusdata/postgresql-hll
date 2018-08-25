@@ -465,7 +465,6 @@ CREATE FUNCTION hll_ceil_card_unpacked(internal)
 CREATE AGGREGATE hll_union_agg (hll) (
        SFUNC = hll_union_trans,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
 
@@ -476,7 +475,6 @@ CREATE AGGREGATE hll_union_agg (hll) (
 CREATE AGGREGATE hll_add_agg (hll_hashval) (
        SFUNC = hll_add_trans0,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
 
@@ -484,7 +482,6 @@ CREATE AGGREGATE hll_add_agg (hll_hashval) (
 CREATE AGGREGATE hll_add_agg (hll_hashval, integer) (
        SFUNC = hll_add_trans1,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
 
@@ -492,7 +489,6 @@ CREATE AGGREGATE hll_add_agg (hll_hashval, integer) (
 CREATE AGGREGATE hll_add_agg (hll_hashval, integer, integer) (
        SFUNC = hll_add_trans2,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
 
@@ -500,7 +496,6 @@ CREATE AGGREGATE hll_add_agg (hll_hashval, integer, integer) (
 CREATE AGGREGATE hll_add_agg (hll_hashval, integer, integer, bigint) (
        SFUNC = hll_add_trans3,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
 
@@ -508,6 +503,5 @@ CREATE AGGREGATE hll_add_agg (hll_hashval, integer, integer, bigint) (
 CREATE AGGREGATE hll_add_agg (hll_hashval, integer, integer, bigint, integer) (
        SFUNC = hll_add_trans4,
        STYPE = internal,
-       SSPACE = 131113,
        FINALFUNC = hll_pack
 );
