@@ -489,6 +489,7 @@ It is a pretty trivial task to export these to and from Postgres and other appli
 
 * [java-hll](https://github.com/aggregateknowledge/java-hll)
 * [js-hll](https://github.com/aggregateknowledge/js-hll)
+* [go-hll](https://github.com/segmentio/go-hll)
 
 Acknowledgements
 ================
