@@ -807,6 +807,29 @@ explicit_validate(multiset_t const * i_msp, ms_explicit_t const * i_msep)
     }
 }
 
+static size_t
+upper_bound(const uint64_t elements[], size_t n, uint64_t value)
+{
+    size_t low = 0;
+    size_t high = n;
+
+    while (low < high)
+    {
+        size_t middle = low + (high - low) / 2;
+        int cmp = element_compare(&value, &elements[middle]);
+        if (cmp == 0) {
+            low = high = middle;
+        }
+        else if (cmp > 0) {
+            low = middle + 1;
+        }
+        else {
+            high = middle;
+        }
+    }
+    return low;
+}
+
 static void
 multiset_add(multiset_t * o_msp, uint64_t element)
 {
@@ -844,14 +867,13 @@ multiset_add(multiset_t * o_msp, uint64_t element)
     case MST_EXPLICIT:
         {
             ms_explicit_t * msep = &o_msp->ms_data.as_expl;
-
+            size_t insert_pos = upper_bound(msep->mse_elems, msep->mse_nelem, element);
             // If the element is already in the set we're done.
-            if (bsearch(&element,
-                        msep->mse_elems,
-                        msep->mse_nelem,
-                        sizeof(uint64_t),
-                        element_compare))
+            if (insert_pos < msep->mse_nelem &&
+                element_compare(&element, &msep->mse_elems[insert_pos]) == 0)
+            {
                 return;
+            }
 
             // Is the explicit multiset full?
             if (msep->mse_nelem == expval)
@@ -864,14 +886,16 @@ multiset_add(multiset_t * o_msp, uint64_t element)
             }
             else
             {
-                // Add the element at the end.
-                msep->mse_elems[msep->mse_nelem++] = element;
-
-                // Resort the elements.
-                qsort(msep->mse_elems,
-                      msep->mse_nelem,
-                      sizeof(uint64_t),
-                      element_compare);
+                // If not at end, move all elements one step
+                if (insert_pos < msep->mse_nelem)
+                {
+                    memmove(&msep->mse_elems[insert_pos + 1],
+                            &msep->mse_elems[insert_pos],
+                            (msep->mse_nelem - insert_pos) * sizeof(uint64_t));
+                }
+                // Actually add the element
+                msep->mse_nelem += 1;
+                msep->mse_elems[insert_pos] = element;
             }
         }
         break;
