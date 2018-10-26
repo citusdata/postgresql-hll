@@ -622,20 +622,22 @@ static void
 explicit_to_compressed(multiset_t * msp)
 {
     // Make a copy of the explicit multiset.
-    multiset_t ms;
-    memcpy(&ms, msp, sizeof(ms));
+    multiset_t *tmp = palloc(sizeof *msp);
+    memcpy(tmp, msp, sizeof *tmp);
 
     // Clear the multiset.
     memset(msp, '\0', sizeof(*msp));
 
     // Restore the metadata.
-    copy_metadata(msp, &ms);
+    copy_metadata(msp, tmp);
 
     // Make it MST_COMPRESSED.
     msp->ms_type = MST_COMPRESSED;
 
     // Add all the elements back into the compressed multiset.
-    compressed_explicit_union(msp, &ms);
+    compressed_explicit_union(msp, tmp);
+
+    pfree(tmp);
 }
 
 static int
