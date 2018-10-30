@@ -18,8 +18,7 @@ DATA_built = $(foreach v,$(EXTVERSIONS),$(EXTENSION)--$(v).sql)
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
 
 MODULE_big = $(EXTENSION)
-OBJS = src/hll.o \
-       src/MurmurHash3.o
+OBJS = $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 
 PG_CPPFLAGS = -fPIC -Wall -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude -I$(libpq_srcdir)
 
