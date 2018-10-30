@@ -2756,19 +2756,11 @@ setup_multiset(MemoryContext rcontext)
     MemoryContext oldcontext;
     multiset_t * msp;
 
-#if (PG_VERSION_NUM >= 110000)
-    tmpcontext = AllocSetContextCreateExtended(rcontext,
-                                               "multiset",
-                                               ALLOCSET_DEFAULT_MINSIZE,
-                                               ALLOCSET_DEFAULT_INITSIZE,
-                                               ALLOCSET_DEFAULT_MAXSIZE);
-#else
     tmpcontext = AllocSetContextCreate(rcontext,
                                        "multiset",
                                        ALLOCSET_DEFAULT_MINSIZE,
                                        ALLOCSET_DEFAULT_INITSIZE,
                                        ALLOCSET_DEFAULT_MAXSIZE);
-#endif
 
     oldcontext = MemoryContextSwitchTo(tmpcontext);
 
