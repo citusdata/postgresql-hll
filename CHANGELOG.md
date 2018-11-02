@@ -1,3 +1,7 @@
+2018-11-03
+==========
+v2.12 - More updates for PostgreSQL 11 and fixes
+
 2018-08-25
 ==========
 v2.11 - Updated for PostgreSQL 11

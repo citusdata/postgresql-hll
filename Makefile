@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 EXTENSION = hll
-EXTVERSIONS = 2.10 2.11
+EXTVERSIONS = 2.10 2.11 2.12
 
 DATA_built = $(foreach v,$(EXTVERSIONS),$(EXTENSION)--$(v).sql)
 DATA = $(wildcard $(EXTENSION)--*--*.sql)
@@ -33,4 +33,6 @@ src/hll.o: override CFLAGS += -std=c99
 $(EXTENSION)--2.10.sql: $(EXTENSION).sql
 	cat $^ > $@
 $(EXTENSION)--2.11.sql: $(EXTENSION)--2.10.sql $(EXTENSION)--2.10--2.11.sql
+	cat $^ > $@
+$(EXTENSION)--2.12.sql: $(EXTENSION)--2.11.sql $(EXTENSION)--2.11--2.12.sql
 	cat $^ > $@
