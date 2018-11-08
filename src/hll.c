@@ -807,67 +807,27 @@ explicit_validate(multiset_t const * i_msp, ms_explicit_t const * i_msep)
     }
 }
 
-static void
-explicit_add(multiset_t * o_msp, uint64_t element, size_t expval)
+static size_t
+upper_bound(const uint64_t elements[], size_t n, uint64_t value)
 {
-    ms_explicit_t * msep = &o_msp->ms_data.as_expl;
+    size_t low = 0;
+    size_t high = n;
 
-    // Assumption is that we always have at least one explicit
-    // element. Otherwise the multiset is EMPTY.
-    size_t low_pos = 0;
-    size_t high_pos = msep->mse_nelem - 1;
-    size_t insert_pos = 0;
-    while (1)
+    while (low < high)
     {
-        size_t test_pos = low_pos + ((high_pos - low_pos) / 2);
-        uint64_t test_element = msep->mse_elems[test_pos];
-        int ecmp = element_compare(&element, &test_element);
-        if (ecmp == 0) {
-            // Element, found, we're done.
-            return;
+        size_t middle = low + (high - low) / 2;
+        int cmp = element_compare(&value, &elements[middle]);
+        if (cmp == 0) {
+            low = high = middle;
         }
-        else if (ecmp < 0)
-        {
-            if (test_pos <= low_pos)
-            {
-                insert_pos = low_pos;
-                break;
-            }
-            high_pos = test_pos - 1;
+        else if (cmp > 0) {
+            low = middle + 1;
         }
-        else
-        {
-            if (test_pos >= high_pos)
-            {
-                insert_pos = high_pos + 1;
-                break;
-            }
-            low_pos = test_pos + 1;
+        else {
+            high = middle;
         }
     }
-
-    // Now we have the insert position.
-
-    // Is the explicit multiset full?
-    if (msep->mse_nelem == expval)
-    {
-        // Convert it to compressed.
-        explicit_to_compressed(o_msp);
-
-        // Add the element in compressed format.
-        compressed_add(o_msp, element);
-    }
-    else
-    {
-        if (insert_pos < msep->mse_nelem)
-        {
-            memmove(&msep->mse_elems[insert_pos + 1],
-                    &msep->mse_elems[insert_pos],
-                    (msep->mse_nelem - insert_pos) * sizeof(uint64_t));
-        }
-        msep->mse_nelem += 1;
-        msep->mse_elems[insert_pos] = element;
-    }
+    return low;
 }
 
 static void
@@ -905,7 +865,39 @@ multiset_add(multiset_t * o_msp, uint64_t element)
         break;
 
     case MST_EXPLICIT:
-        explicit_add(o_msp, element, expval);
+        {
+            ms_explicit_t * msep = &o_msp->ms_data.as_expl;
+            size_t insert_pos = upper_bound(msep->mse_elems, msep->mse_nelem, element);
+            // If the element is already in the set we're done.
+            if (insert_pos < msep->mse_nelem &&
+                element_compare(&element, &msep->mse_elems[insert_pos]) == 0)
+            {
+                return;
+            }
+
+            // Is the explicit multiset full?
+            if (msep->mse_nelem == expval)
+            {
+                // Convert it to compressed.
+                explicit_to_compressed(o_msp);
+
+                // Add the element in compressed format.
+                compressed_add(o_msp, element);
+            }
+            else
+            {
+                // If not at end, move all elements one step
+                if (insert_pos < msep->mse_nelem)
+                {
+                    memmove(&msep->mse_elems[insert_pos + 1],
+                            &msep->mse_elems[insert_pos],
+                            (msep->mse_nelem - insert_pos) * sizeof(uint64_t));
+                }
+                // Actually add the element
+                msep->mse_nelem += 1;
+                msep->mse_elems[insert_pos] = element;
+            }
+        }
         break;
 
     case MST_COMPRESSED:
