@@ -28,6 +28,8 @@ PG_CONFIG ?= pg_config
 PGXS = $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 
+SHLIB_LINK	+= -lstdc++
+
 src/hll.o: override CFLAGS += -std=c99
 
 $(EXTENSION)--2.10.sql: $(EXTENSION).sql
