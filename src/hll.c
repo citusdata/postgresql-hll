@@ -26,21 +26,38 @@
 #endif
 
 #include <funcapi.h>
+#include <limits.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include "access/sysattr.h"
+#include "access/htup_details.h"
+#include "commands/extension.h"
+#include "optimizer/planner.h"
 #include "utils/array.h"
 #include "utils/bytea.h"
+#include "utils/builtins.h"
+#include "utils/fmgroids.h"
 #if (PG_VERSION_NUM >= 100000)
 #include "utils/fmgrprotos.h"
 #endif
+#include "utils/guc.h"
 #include "utils/int8.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
+#if (PG_VERSION_NUM >= 100000)
+#include "utils/regproc.h"
+#endif
+#include "catalog/indexing.h"
+#include "catalog/namespace.h"
 #include "catalog/pg_type.h"
+#include "catalog/pg_extension.h"
 #include "lib/stringinfo.h"
 #include "libpq/pqformat.h"
+#include "nodes/print.h"
+#include "optimizer/var.h"
+#include "miscadmin.h"
 
 #include "MurmurHash3.h"
 
@@ -91,6 +108,308 @@ enum {
 
     MST_UNINIT		= 0xffff,	// Internal uninitialized.
 };
+
+// Support disabling hash aggregation functionality for PG > 9.6
+#if PG_VERSION_NUM >= 90600
+
+#define EXTENSION_NAME "hll"
+#define ADD_AGG_NAME "hll_add_agg"
+#define UNION_AGG_NAME "hll_union_agg"
+#define HLL_AGGREGATE_COUNT 6
+
+static Oid hllAggregateArray[HLL_AGGREGATE_COUNT];
+static bool aggregateValuesInitialized = false;
+
+bool ForceGroupAgg = false;
+
+static create_upper_paths_hook_type previous_upper_path_hook;
+static void RegisterConfigVariables(void);
+
+#if (PG_VERSION_NUM >= 110000)
+static void hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKind stage,
+								   RelOptInfo *input_rel, RelOptInfo *output_rel,
+								   void *extra);
+#else
+static void hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKind stage,
+								   RelOptInfo *input_rel, RelOptInfo *output_rel);
+#endif
+
+static void MaximizeCostOfHashAggregate(Path *path);
+static Oid get_extension_schema(Oid ext_oid);
+static Oid FunctionOid(const char *schemaName, const char *functionName, int argumentCount, bool missingOk);
+static void InitializeHllAggregateOids(void);
+static bool HllAggregateOid(Oid aggregateOid);
+
+void _PG_init(void);
+void _PG_fini(void);
+
+/* _PG_init is the shared library initialization function */
+void _PG_init(void)
+{
+	if (!process_shared_preload_libraries_in_progress)
+	{
+		ereport(ERROR, (errmsg("HLL can only be loaded via shared_preload_libraries"),
+						errhint("Add hll to shared_preload_libraries configuration "
+								"variable in postgresql.conf")));
+	}
+
+	/*
+	 * Register HLL configuration variables.
+	 */
+	RegisterConfigVariables();
+
+	previous_upper_path_hook = create_upper_paths_hook;
+	create_upper_paths_hook = hll_aggregation_restriction_hook;
+}
+
+/*
+ * hll_aggregation_restriction_hook is assigned to create_upper_paths_hook to
+ * check whether there exist a path with hash aggregate. If that aggregate is
+ * introduced by hll, it's cost is maximized to force planner to not to select
+ * hash aggregate.
+ *
+ * Since the signature of the hook changes after PG 11, we define the signature
+ * and the previous hook call part of this function depending on the PG version.
+ */
+static void
+#if (PG_VERSION_NUM >= 110000)
+
+hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKind stage,
+								   RelOptInfo *input_rel, RelOptInfo *output_rel,
+								   void *extra)
+#else
+hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKind stage,
+								   RelOptInfo *input_rel, RelOptInfo *output_rel)
+#endif
+{
+	Oid extensionOid = InvalidOid;
+
+	// If previous hook exist, call it first to get most update path
+	if (previous_upper_path_hook != NULL)
+	{
+		#if (PG_VERSION_NUM >= 110000)
+			previous_upper_path_hook(root, stage, input_rel, output_rel, extra);
+		#else
+			previous_upper_path_hook(root, stage, input_rel, output_rel);
+		#endif
+	}
+
+	/* If HLL extension is not loaded, do nothing */
+	extensionOid = get_extension_oid(EXTENSION_NAME, true);
+	if (!OidIsValid(extensionOid))
+	{
+		return;
+	}
+
+	/* If we have the extension, that means we also have aggregations */
+	if (!aggregateValuesInitialized)
+	{
+		InitializeHllAggregateOids();
+	}
+
+	/*
+	 *  If the client force the group agg, maximize the cost of the path with
+	 *  the hash agg to force planner to choose group agg instead.
+	 */
+	if (ForceGroupAgg)
+	{
+		if (stage == UPPERREL_GROUP_AGG || stage == UPPERREL_FINAL)
+		{
+			ListCell *pathCell = list_head(output_rel->pathlist);
+			foreach(pathCell, output_rel->pathlist)
+			{
+				Path *path = (Path *) lfirst(pathCell);
+				if(path->pathtype == T_Agg && ((AggPath *)path)->aggstrategy == AGG_HASHED)
+				{
+					MaximizeCostOfHashAggregate(path);
+				}
+			}
+		}
+	}
+}
+
+/*
+ * InitializeHllAggregateOids initializes the array of hll aggregate oids.
+ */
+static void
+InitializeHllAggregateOids()
+{
+	Oid extensionId = get_extension_oid(EXTENSION_NAME, false);
+	Oid hllSchemaOid = get_extension_schema(extensionId);
+	const char *hllSchemaName = get_namespace_name(hllSchemaOid);
+	char *aggregateName = NULL;
+	Oid aggregateOid = InvalidOid;
+	int addAggArgumentCounter;
+
+	/* Initialize HLL_UNION_AGG oid */
+	aggregateName = UNION_AGG_NAME;
+	aggregateOid = FunctionOid(hllSchemaName, aggregateName, 1, true);
+	hllAggregateArray[0] = aggregateOid;
+
+	/* Initialize HLL_ADD_AGG with different signatures */
+	aggregateName = ADD_AGG_NAME;
+	for (addAggArgumentCounter = 1 ; addAggArgumentCounter < HLL_AGGREGATE_COUNT ; addAggArgumentCounter++)
+	{
+		aggregateOid = FunctionOid(hllSchemaName, aggregateName, addAggArgumentCounter, true);
+		hllAggregateArray[addAggArgumentCounter] = aggregateOid;
+	}
+
+	aggregateValuesInitialized = true;
+}
+
+/*
+ * get_extension_schema - given an extension OID, fetch its extnamespace
+ * Returns InvalidOid if no such extension.
+ *
+ * Copied from postgresql extension.c.
+ */
+static Oid
+get_extension_schema(Oid ext_oid)
+{
+	Oid			result;
+	Relation	rel;
+	SysScanDesc scandesc;
+	HeapTuple	tuple;
+	ScanKeyData entry[1];
+
+	rel = heap_open(ExtensionRelationId, AccessShareLock);
+
+	ScanKeyInit(&entry[0],
+				ObjectIdAttributeNumber,
+				BTEqualStrategyNumber, F_OIDEQ,
+				ObjectIdGetDatum(ext_oid));
+
+	scandesc = systable_beginscan(rel, ExtensionOidIndexId, true,
+								  NULL, 1, entry);
+
+	tuple = systable_getnext(scandesc);
+
+	/* We assume that there can be at most one matching tuple */
+	if (HeapTupleIsValid(tuple))
+		result = ((Form_pg_extension) GETSTRUCT(tuple))->extnamespace;
+	else
+		result = InvalidOid;
+
+	systable_endscan(scandesc);
+
+	heap_close(rel, AccessShareLock);
+
+	return result;
+}
+
+/*
+ * FunctionOid searches for a given function identified by schema, functionName
+ * and argumentCount. It reports error if the function is not found or there
+ * are more than one match. If the missingOK parameter is set and there are
+ * no matches, then the function returns InvalidOid.
+ */
+static Oid
+FunctionOid(const char *schemaName, const char *functionName, int argumentCount,
+					bool missingOK)
+{
+	FuncCandidateList functionList = NULL;
+	Oid functionOid = InvalidOid;
+
+	char *qualifiedFunctionName = quote_qualified_identifier(schemaName, functionName);
+	List *qualifiedFunctionNameList = stringToQualifiedNameList(qualifiedFunctionName);
+	List *argumentList = NIL;
+	const bool findVariadics = false;
+	const bool findDefaults = false;
+
+	functionList = FuncnameGetCandidates(qualifiedFunctionNameList, argumentCount,
+										 argumentList, findVariadics,
+										 findDefaults, true);
+
+	if (functionList == NULL)
+	{
+		if (missingOK)
+		{
+			return InvalidOid;
+		}
+
+		ereport(ERROR, (errcode(ERRCODE_UNDEFINED_FUNCTION),
+						errmsg("function \"%s\" does not exist", functionName)));
+	}
+	else if (functionList->next != NULL)
+	{
+		ereport(ERROR, (errcode(ERRCODE_AMBIGUOUS_FUNCTION),
+						errmsg("more than one function named \"%s\"", functionName)));
+	}
+
+	/* get function oid from function list's head */
+	functionOid = functionList->oid;
+
+	return functionOid;
+}
+
+/*
+ * MaximizeCostOfHashAggregate maximizes the cost of the path if it tries
+ * to run hll aggregate function with hash aggregate.
+ */
+static void
+MaximizeCostOfHashAggregate(Path *path)
+{
+	List *varList = pull_var_clause((Node*) path->pathtarget->exprs,
+									PVC_INCLUDE_AGGREGATES);
+	ListCell *varCell = NULL;
+
+	foreach(varCell, varList)
+	{
+		Var *var = (Var *) lfirst(varCell);
+
+		if (nodeTag(var) == T_Aggref)
+		{
+			Aggref *aggref = (Aggref *) var;
+
+			if(HllAggregateOid(aggref->aggfnoid))
+			{
+				path->total_cost = INT_MAX;
+			}
+		}
+	}
+}
+
+/*
+ * HllAggregateOid checkes whether the given Oid is an id of any hll aggregate
+ * function using the pre-initialized hllAggregateArray.
+ */
+static bool
+HllAggregateOid(Oid aggregateOid)
+{
+	int arrayCounter;
+
+	for (arrayCounter = 0 ; arrayCounter < HLL_AGGREGATE_COUNT ; arrayCounter++)
+	{
+		if (aggregateOid == hllAggregateArray[arrayCounter])
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/* Register HLL configuration variables. */
+static void
+RegisterConfigVariables(void)
+{
+	DefineCustomBoolVariable(
+		"hll.force_groupagg",
+		gettext_noop("Forces using group aggregate with hll aggregate functions"),
+		NULL,
+		&ForceGroupAgg,
+		false,
+		PGC_USERSET,
+		0,
+		NULL, NULL, NULL);
+}
+
+/* _PG_fini uninstalls extension hooks */
+void _PG_fini(void)
+{
+	create_upper_paths_hook = previous_upper_path_hook;
+}
+#endif
 
 static int32 typmod_log2m(int32 typmod)
 {

@@ -1,6 +1,9 @@
 sudo: required
 dist: trusty
 language: c
+env:
+  global:
+    - PG_PRELOAD=hll
 matrix:
   fast_finish: true
   include:
