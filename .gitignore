@@ -4,6 +4,7 @@ binary.dat
 regression.out
 regression.diffs
 results
+.deps/
 
 hll--*.*.sql
-!hll--*.*--*.*.sql
+!update/hll--*.*.sql
