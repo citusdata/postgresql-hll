@@ -31,7 +31,8 @@ SELECT recno,
        cardinality,
        hll_cardinality(compressed_multiset)
   FROM test_mpuahgwy
- WHERE cardinality != hll_cardinality(compressed_multiset);
+ WHERE cardinality != hll_cardinality(compressed_multiset)
+ ORDER BY recno;
  recno |   cardinality    | hll_cardinality  
 -------+------------------+------------------
    303 | 4250.71186178904 | 4250.71186178904
@@ -45,7 +46,8 @@ SELECT recno,
        union_cardinality,
        hll_cardinality(union_compressed_multiset)
   FROM test_mpuahgwy
- WHERE union_cardinality != hll_cardinality(union_compressed_multiset);
+ WHERE union_cardinality != hll_cardinality(union_compressed_multiset)
+ ORDER BY recno;
  recno | union_cardinality | hll_cardinality 
 -------+-------------------+-----------------
 (0 rows)
@@ -59,7 +61,8 @@ SELECT curr.recno,
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
    AND curr.union_compressed_multiset != 
-       hll_union(curr.compressed_multiset, prev.union_compressed_multiset);
+       hll_union(curr.compressed_multiset, prev.union_compressed_multiset)
+ ORDER BY curr.recno;
  recno | union_compressed_multiset | hll_union 
 -------+---------------------------+-----------
 (0 rows)
@@ -75,7 +78,8 @@ SELECT curr.recno,
    AND curr.recno = prev.recno + 1
    AND curr.union_cardinality != 
        hll_cardinality(hll_union(curr.compressed_multiset,
-                                 prev.union_compressed_multiset));
+                                 prev.union_compressed_multiset))
+ ORDER BY curr.recno;
  recno | union_cardinality | hll_cardinality 
 -------+-------------------+-----------------
 (0 rows)
@@ -91,7 +95,8 @@ SELECT v1.recno,
  WHERE v1.union_compressed_multiset !=
        (select hll_union_agg(compressed_multiset)
           from test_mpuahgwy
-         where recno <= v1.recno);
+         where recno <= v1.recno)
+ ORDER BY v1.recno;
  recno | union_compressed_multiset | hll_union_agg 
 -------+---------------------------+---------------
 (0 rows)
@@ -107,7 +112,8 @@ SELECT v1.recno,
  WHERE ceil(v1.union_cardinality) !=
        (select ceiling(hll_cardinality(hll_union_agg(compressed_multiset)))
           from test_mpuahgwy
-         where recno <= v1.recno);
+         where recno <= v1.recno)
+ ORDER BY v1.recno;
  recno | ceil | ceiling 
 -------+------+---------
 (0 rows)
