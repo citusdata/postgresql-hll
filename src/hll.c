@@ -1703,6 +1703,8 @@ multiset_copy_size(multiset_t const * i_msp)
     switch (i_msp->ms_type)
     {
     case MST_EMPTY:
+    case MST_UNDEFINED:
+    case MST_UNINIT:
         retval = __builtin_offsetof(multiset_t, ms_data);
         break;
 
@@ -1719,10 +1721,6 @@ multiset_copy_size(multiset_t const * i_msp)
             retval = __builtin_offsetof(multiset_t, ms_data.as_comp.msc_regs);
             retval += (i_msp->ms_nregs * sizeof(compreg_t));
         }
-        break;
-
-    case MST_UNDEFINED:
-        retval = __builtin_offsetof(multiset_t, ms_data);
         break;
 
     default:
@@ -1918,7 +1916,7 @@ hll(PG_FUNCTION_ARGS)
     // Unpack the bit data.
     multiset_unpack(&ms, (uint8_t *) VARDATA(bp), sz, NULL);
 
-    // Make the compiler happpy.
+    // Make the compiler happy.
     (void) isexplicit;
 
     // Create a placeholder w/ declared metadata.
@@ -3192,6 +3190,70 @@ hll_union_trans(PG_FUNCTION_ARGS)
     PG_RETURN_POINTER(msap);
 }
 
+// Union aggregate combinefunc function, both args unpacked.
+//
+// NOTE - This function is not declared STRICT, it is initialized with
+// a NULL ...
+//
+PG_FUNCTION_INFO_V1(hll_union_internal);
+Datum hll_union_internal(PG_FUNCTION_ARGS);
+Datum
+hll_union_internal(PG_FUNCTION_ARGS)
+{
+    MemoryContext aggctx;
+    multiset_t * multiSetA;
+    multiset_t * multiSetB;
+
+    if (!AggCheckCallContext(fcinfo, &aggctx))
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("hll_union_internal "
+                        "outside aggregate context")));
+
+    if (PG_ARGISNULL(0))
+    {
+        if (PG_ARGISNULL(1))
+        {
+            PG_RETURN_POINTER(setup_multiset(aggctx));
+        }
+        else
+        {
+            multiSetA = setup_multiset(aggctx);
+            multiSetB = (multiset_t *)PG_GETARG_POINTER(1);
+            memcpy(multiSetA, multiSetB, multiset_copy_size(multiSetB));
+            PG_RETURN_POINTER(multiSetA);
+        }
+    }
+    else
+    {
+        if (PG_ARGISNULL(1))
+        {
+            PG_RETURN_DATUM(PG_GETARG_DATUM(0));
+        }
+        else
+        {
+            multiSetA = (multiset_t *) PG_GETARG_POINTER(0);
+            multiSetB = (multiset_t *) PG_GETARG_POINTER(1);
+
+            if (multiSetA->ms_type == MST_UNINIT)
+            {
+                if (multiSetB->ms_type != MST_UNINIT)
+                {
+                    memcpy(multiSetA, multiSetB, multiset_copy_size(multiSetB));
+                }
+                PG_RETURN_POINTER(multiSetA);
+            }
+            if (multiSetB->ms_type == MST_UNINIT)
+            {
+                PG_RETURN_POINTER(multiSetA);
+            }
+            multiset_union(multiSetA, multiSetB);
+            PG_RETURN_POINTER(multiSetA);
+        }
+    }
+
+}
+
 // Add aggregate transition function.
 //
 // NOTE - This function is not declared STRICT, it is initialized with
@@ -3711,10 +3773,56 @@ Datum hll_send(PG_FUNCTION_ARGS);
 Datum
 hll_send(PG_FUNCTION_ARGS)
 {
-    Datum dd = PG_GETARG_DATUM(0);
-    bytea* bp = DatumGetByteaP(dd);
+    bytea * bp = PG_GETARG_BYTEA_P(0);
     StringInfoData buf;
     pq_begintypsend(&buf);
     pq_sendbytes(&buf, VARDATA(bp), VARSIZE(bp) - VARHDRSZ);
     PG_RETURN_BYTEA_P(pq_endtypsend(&buf));
+}
+
+PG_FUNCTION_INFO_V1(hll_serialize);
+Datum hll_serialize(PG_FUNCTION_ARGS);
+Datum
+hll_serialize(PG_FUNCTION_ARGS)
+{
+    multiset_t * multiSet;
+    bytea * serializedBytes;
+    size_t multiSetSize;
+
+    if (!AggCheckCallContext(fcinfo, NULL))
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("hll_serialize outside transition context")));
+
+    multiSet = (multiset_t *) PG_GETARG_POINTER(0);
+    multiSetSize = multiset_copy_size(multiSet);
+
+    serializedBytes = palloc(VARHDRSZ + multiSetSize);
+
+    SET_VARSIZE(serializedBytes, VARHDRSZ + multiSetSize);
+    memcpy(VARDATA(serializedBytes), multiSet, multiSetSize);
+
+    PG_RETURN_BYTEA_P(serializedBytes);
+}
+
+PG_FUNCTION_INFO_V1(hll_deserialize);
+Datum hll_deserialize(PG_FUNCTION_ARGS);
+Datum
+hll_deserialize(PG_FUNCTION_ARGS)
+{
+    bytea * serializedBytes = PG_GETARG_BYTEA_P(0);
+    multiset_t * multiSet;
+    size_t multiSetSize;
+
+    if (!AggCheckCallContext(fcinfo, NULL))
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("hll_deserialize outside transition context")));
+
+    multiSet = palloc(sizeof(multiset_t));
+
+    multiSetSize = VARSIZE(serializedBytes) - VARHDRSZ;
+    memcpy(multiSet, VARDATA(serializedBytes), multiSetSize);
+
+    PG_RETURN_POINTER(multiSet);
 }
