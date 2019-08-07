@@ -3,7 +3,7 @@
 Overview
 ========
 
-This Postgres module introduces a new data type `hll` which is a [HyperLogLog](http://blog.aggregateknowledge.com/2012/10/25/sketch-of-the-day-hyperloglog-cornerstone-of-a-big-data-infrastructure/) data structure. HyperLogLog is a **fixed-size**, set-like structure used for distinct value counting with tunable precision. For example, in 1280 bytes `hll` can estimate the count of tens of billions of distinct values with only a few percent error.
+This Postgres module introduces a new data type `hll` which is a [HyperLogLog](https://research.neustar.biz/2012/10/25/sketch-of-the-day-hyperloglog-cornerstone-of-a-big-data-infrastructure/) data structure. HyperLogLog is a **fixed-size**, set-like structure used for distinct value counting with tunable precision. For example, in 1280 bytes `hll` can estimate the count of tens of billions of distinct values with only a few percent error.
 
 In addition to the algorithm proposed in the [original paper](http://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf), this implementation is augmented to improve its accuracy and memory use without sacrificing much speed. See below for more details.
 
