@@ -478,7 +478,7 @@ On Unions and Intersections
 
 Using the [inclusion-exclusion principle](http://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle) and the union function, you can also estimate the intersection of sets represented by `hll`s. Note, however, that error is proportional to the union of the two `hll`s, while the result can be significantly smaller than the union, leading to disproportionately large error relative to the actual intersection cardinality. For instance, if one `hll` has a cardinality of 1 billion, while the other has a cardinality of 10 million, with an overlap of 5 million, the intersection cardinality can easily be dwarfed by even a 1% error estimate in the larger `hll`s cardinality.
 
-For more information on `hll` intersections, see [this blog post](http://blog.aggregateknowledge.com/2012/12/17/hll-intersections-2/).
+For more information on `hll` intersections, see [this blog post](https://research.neustar.biz/2012/12/17/hll-intersections-2/).
 
 Storage formats
 ===============
