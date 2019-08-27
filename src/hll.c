@@ -31,6 +31,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#if PG_VERSION_NUM >= 120000
+#include "access/genam.h"
+#include "access/heapam.h"
+#endif
 #include "access/sysattr.h"
 #include "access/htup_details.h"
 #include "commands/extension.h"
@@ -56,7 +60,11 @@
 #include "lib/stringinfo.h"
 #include "libpq/pqformat.h"
 #include "nodes/print.h"
+#if PG_VERSION_NUM >= 120000
+#include "optimizer/optimizer.h"
+#else
 #include "optimizer/var.h"
+#endif
 #include "miscadmin.h"
 
 #include "MurmurHash3.h"
@@ -275,7 +283,11 @@ get_extension_schema(Oid ext_oid)
 	rel = heap_open(ExtensionRelationId, AccessShareLock);
 
 	ScanKeyInit(&entry[0],
+#if PG_VERSION_NUM >= 120000
+				Anum_pg_extension_oid,
+#else
 				ObjectIdAttributeNumber,
+#endif
 				BTEqualStrategyNumber, F_OIDEQ,
 				ObjectIdGetDatum(ext_oid));
 
