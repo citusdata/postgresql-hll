@@ -585,6 +585,31 @@ typedef struct
 
 } bitstream_read_cursor_t;
 
+
+/*
+ * The result of mse_nelem_max()/msc_regs_idx_limit() is a const in a specific platform.
+ * But we couldn't hard code it explicitly because we do not know current alignment schema
+ * when compiling it.
+ */
+static size_t
+mse_nelem_max(void)
+{
+    multiset_t *msp = NULL;  /* Safely! */
+    uint8_t *ms_data_start = (uint8_t*)(&msp->ms_data);
+    uint8_t *ms_data_end = ms_data_start + sizeof(msp->ms_data);
+    uint8_t *mse_elems_start = (uint8_t*)(&msp->ms_data.as_expl.mse_elems);
+    /* return ((size_t)(ms_data_end - mse_elems_start)) / sizeof(uint64_t) */
+    return ((size_t)(ms_data_end - mse_elems_start)) >> 3;
+}
+
+static size_t
+msc_regs_idx_limit(void)
+{
+    multiset_t * o_msp = NULL;
+    uint8_t * const ms_data_limit = ((uint8_t*)&o_msp->ms_data) + sizeof(o_msp->ms_data);
+    return (ms_data_limit - (uint8_t*)&o_msp->ms_data.as_comp.msc_regs[0]) / sizeof(compreg_t);
+}
+
 static uint32_t
 bitstream_unpack(bitstream_read_cursor_t * brcp)
 {
@@ -934,6 +959,8 @@ compressed_add(multiset_t * o_msp, uint64_t elem)
 
     size_t p_w = ss_val == 0 ? 0 : __builtin_ctzll(ss_val) + 1;
 
+    Assert(ndx < msc_regs_idx_limit());
+
     if (p_w > maxregval)
         p_w = maxregval;
 
@@ -1169,6 +1196,7 @@ multiset_add(multiset_t * o_msp, uint64_t element)
     size_t expval = expthresh_value(o_msp->ms_expthresh,
                                     o_msp->ms_nbits,
                                     o_msp->ms_nregs);
+    Assert(expval <= mse_nelem_max());
 
     switch (o_msp->ms_type)
     {
@@ -1388,7 +1416,7 @@ multiset_unpack(multiset_t * o_msp,
             }
 
             // Make sure the explicit array fits in memory.
-            if ((i_size - hdrsz) > MS_MAXDATA)
+            if (nelem > mse_nelem_max())
             {
                 ereport(ERROR,
                         (errcode(ERRCODE_DATA_EXCEPTION),
@@ -1994,21 +2022,24 @@ hll_hashval_int4(PG_FUNCTION_ARGS)
 static void
 check_modifiers(int32 log2m, int32 regwidth, int64 expthresh, int32 sparseon)
 {
+    int64 expthresh_max = mse_nelem_max();
+    int32 log2m_max = integer_log2(msc_regs_idx_limit());  /* const expression. */
+
     // Range check each of the modifiers.
-    if (log2m < 0 || log2m > MAX_BITVAL(LOG2M_BITS))
+    if (log2m < 0 || log2m > log2m_max)
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("log2m modifier must be between 0 and 31")));
+                 errmsg("log2m modifier must be between 0 and %d", log2m_max)));
 
     if (regwidth < 0 || regwidth > MAX_BITVAL(REGWIDTH_BITS))
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("regwidth modifier must be between 0 and 7")));
 
-    if (expthresh < -1 || expthresh > 4294967296LL)
+    if (expthresh < -1 || expthresh > expthresh_max)
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("expthresh modifier must be between -1 and 2^32")));
+                 errmsg("expthresh modifier must be between -1 and %ld", expthresh_max)));
 
     if (expthresh > 0 && (1LL << integer_log2(expthresh)) != expthresh)
         ereport(ERROR,
