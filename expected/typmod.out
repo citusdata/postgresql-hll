@@ -59,9 +59,9 @@ LINE 1: CREATE TABLE test_qiundgkm (v1 hll(10, 4, 64, 0, 42));
 -- ----------------------------------------------------------------
 -- Range Check log2nregs
 -- ----------------------------------------------------------------
--- ERROR:  log2m modifier must be between 0 and 31
+-- ERROR:  log2m modifier must be between 0 and 17
 CREATE TABLE test_qiundgkm (v1 hll(-1));
-ERROR:  log2m modifier must be between 0 and 31
+ERROR:  log2m modifier must be between 0 and 17
 LINE 1: CREATE TABLE test_qiundgkm (v1 hll(-1));
                                        ^
 CREATE TABLE test_qiundgkm (v1 hll(0));
@@ -73,16 +73,15 @@ CREATE TABLE test_qiundgkm (v1 hll(0));
 
 DROP TABLE test_qiundgkm;
 CREATE TABLE test_qiundgkm (v1 hll(31));
+ERROR:  log2m modifier must be between 0 and 17
+LINE 1: CREATE TABLE test_qiundgkm (v1 hll(31));
+                                       ^
 \d test_qiundgkm
-               Table "public.test_qiundgkm"
- Column |      Type      | Collation | Nullable | Default 
---------+----------------+-----------+----------+---------
- v1     | hll(31,5,-1,1) |           |          | 
-
 DROP TABLE test_qiundgkm;
--- ERROR:  log2m modifier must be between 0 and 31
+ERROR:  table "test_qiundgkm" does not exist
+-- ERROR:  log2m modifier must be between 0 and 17
 CREATE TABLE test_qiundgkm (v1 hll(32));
-ERROR:  log2m modifier must be between 0 and 31
+ERROR:  log2m modifier must be between 0 and 17
 LINE 1: CREATE TABLE test_qiundgkm (v1 hll(32));
                                        ^
 -- ----------------------------------------------------------------
@@ -117,9 +116,9 @@ LINE 1: CREATE TABLE test_qiundgkm (v1 hll(11, 8));
 -- ----------------------------------------------------------------
 -- Range Check expthresh
 -- ----------------------------------------------------------------
--- ERROR:  expthresh modifier must be between -1 and 2^32
+-- ERROR:  expthresh modifier must be between -1 and 16383
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, -2));
-ERROR:  expthresh modifier must be between -1 and 2^32
+ERROR:  expthresh modifier must be between -1 and 16383
 LINE 1: CREATE TABLE test_qiundgkm (v1 hll(11, 5, -2));
                                        ^
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, -1));
@@ -147,16 +146,15 @@ CREATE TABLE test_qiundgkm (v1 hll(11, 5, 128));
 
 DROP TABLE test_qiundgkm;
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, 4294967296));
+ERROR:  expthresh modifier must be between -1 and 16383
+LINE 1: CREATE TABLE test_qiundgkm (v1 hll(11, 5, 4294967296));
+                                       ^
 \d test_qiundgkm
-                   Table "public.test_qiundgkm"
- Column |          Type          | Collation | Nullable | Default 
---------+------------------------+-----------+----------+---------
- v1     | hll(11,5,4294967296,1) |           |          | 
-
 DROP TABLE test_qiundgkm;
--- ERROR:  expthresh modifier must be between -1 and 2^32
+ERROR:  table "test_qiundgkm" does not exist
+-- ERROR:  expthresh modifier must be between -1 and 16383
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, 8589934592));
-ERROR:  expthresh modifier must be between -1 and 2^32
+ERROR:  expthresh modifier must be between -1 and 16383
 LINE 1: CREATE TABLE test_qiundgkm (v1 hll(11, 5, 8589934592));
                                        ^
 -- ----------------------------------------------------------------

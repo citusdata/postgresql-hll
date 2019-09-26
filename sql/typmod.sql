@@ -35,7 +35,7 @@ CREATE TABLE test_qiundgkm (v1 hll(10, 4, 64, 0, 42));
 -- Range Check log2nregs
 -- ----------------------------------------------------------------
 
--- ERROR:  log2m modifier must be between 0 and 31
+-- ERROR:  log2m modifier must be between 0 and 17
 CREATE TABLE test_qiundgkm (v1 hll(-1));
 
 CREATE TABLE test_qiundgkm (v1 hll(0));
@@ -46,7 +46,7 @@ CREATE TABLE test_qiundgkm (v1 hll(31));
 \d test_qiundgkm
 DROP TABLE test_qiundgkm;
 
--- ERROR:  log2m modifier must be between 0 and 31
+-- ERROR:  log2m modifier must be between 0 and 17
 CREATE TABLE test_qiundgkm (v1 hll(32));
 
 -- ----------------------------------------------------------------
@@ -71,7 +71,7 @@ CREATE TABLE test_qiundgkm (v1 hll(11, 8));
 -- Range Check expthresh
 -- ----------------------------------------------------------------
 
--- ERROR:  expthresh modifier must be between -1 and 2^32
+-- ERROR:  expthresh modifier must be between -1 and 16383
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, -2));
 
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, -1));
@@ -90,7 +90,7 @@ CREATE TABLE test_qiundgkm (v1 hll(11, 5, 4294967296));
 \d test_qiundgkm
 DROP TABLE test_qiundgkm;
 
--- ERROR:  expthresh modifier must be between -1 and 2^32
+-- ERROR:  expthresh modifier must be between -1 and 16383
 CREATE TABLE test_qiundgkm (v1 hll(11, 5, 8589934592));
 
 -- ----------------------------------------------------------------
