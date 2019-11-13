@@ -154,13 +154,6 @@ void _PG_fini(void);
 /* _PG_init is the shared library initialization function */
 void _PG_init(void)
 {
-	if (!process_shared_preload_libraries_in_progress)
-	{
-		ereport(ERROR, (errmsg("HLL can only be loaded via shared_preload_libraries"),
-						errhint("Add hll to shared_preload_libraries configuration "
-								"variable in postgresql.conf")));
-	}
-
 	/*
 	 * Register HLL configuration variables.
 	 */
