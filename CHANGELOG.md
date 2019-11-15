@@ -1,3 +1,7 @@
+2019-11-15
+==========
+v2.14 - Fixed an issue in version upgrades
+
 2019-11-06
 ==========
 v2.13 - Updated for PostgreSQL 12
