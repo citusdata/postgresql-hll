@@ -301,7 +301,7 @@ get_extension_schema(Oid ext_oid)
 
 	systable_endscan(scandesc);
 
-#if PG_VERSION_NUM >= 120000
+#if PG_VERSION_NUM >= 130000
 	table_close(rel, AccessShareLock);
 #else
 	heap_close(rel, AccessShareLock);
