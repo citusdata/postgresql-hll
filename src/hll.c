@@ -273,7 +273,11 @@ get_extension_schema(Oid ext_oid)
 	HeapTuple	tuple;
 	ScanKeyData entry[1];
 
+#if PG_VERSION_NUM >= 130000
+	rel = table_open(ExtensionRelationId, AccessShareLock);
+#else
 	rel = heap_open(ExtensionRelationId, AccessShareLock);
+#endif
 
 	ScanKeyInit(&entry[0],
 #if PG_VERSION_NUM >= 120000
@@ -297,7 +301,11 @@ get_extension_schema(Oid ext_oid)
 
 	systable_endscan(scandesc);
 
+#if PG_VERSION_NUM >= 120000
+	table_close(rel, AccessShareLock);
+#else
 	heap_close(rel, AccessShareLock);
+#endif
 
 	return result;
 }
