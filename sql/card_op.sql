@@ -2,6 +2,7 @@
 -- Regression tests for cardinality operator.
 -- ----------------------------------------------------------------
 
+set extra_float_digits=0;
 SELECT hll_set_output_version(1);
 
 SELECT #E'\\x108b49'::hll;
