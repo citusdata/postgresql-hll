@@ -2,6 +2,7 @@
 -- Setup the table
 --
 
+set extra_float_digits=0;
 SELECT hll_set_output_version(1);
 
 -- This test relies on a non-standard fixed sparse-to-compressed
