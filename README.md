@@ -367,7 +367,7 @@ This module has been tested on:
 
 If you end up needing to change something to get this running on another system, send us the diff and we'll try to work it in!
 
-Note: At the moment postgresql-hll does not wotk with 32bit systems.
+Note: At the moment postgresql-hll does not work with 32bit systems.
 
 Build
 =====
