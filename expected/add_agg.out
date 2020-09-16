@@ -77,10 +77,10 @@ select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, 512, 0))
 -- Check range checking.
 select hll_print(hll_add_agg(hll_hash_integer(val), -1))
        from test_khvengxf;
-ERROR:  log2m modifier must be between 0 and 31
+ERROR:  log2m modifier must be between 0 and 17
 select hll_print(hll_add_agg(hll_hash_integer(val), 32))
        from test_khvengxf;
-ERROR:  log2m modifier must be between 0 and 31
+ERROR:  log2m modifier must be between 0 and 17
 select hll_print(hll_add_agg(hll_hash_integer(val), 10, -1))
        from test_khvengxf;
 ERROR:  regwidth modifier must be between 0 and 7
@@ -89,10 +89,10 @@ select hll_print(hll_add_agg(hll_hash_integer(val), 10, 8))
 ERROR:  regwidth modifier must be between 0 and 7
 select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, -2))
        from test_khvengxf;
-ERROR:  expthresh modifier must be between -1 and 2^32
+ERROR:  expthresh modifier must be between -1 and 16383
 select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, 8589934592))
        from test_khvengxf;
-ERROR:  expthresh modifier must be between -1 and 2^32
+ERROR:  expthresh modifier must be between -1 and 16383
 select hll_print(hll_add_agg(hll_hash_integer(val), 10, 4, 512, -1))
        from test_khvengxf;
 ERROR:  sparseon modifier must be 0 or 1
