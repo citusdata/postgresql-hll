@@ -49,7 +49,8 @@ SELECT curr.recno,
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
    AND curr.union_compressed_multiset != 
-       hll_union(curr.compressed_multiset, prev.union_compressed_multiset);
+       hll_union(curr.compressed_multiset, prev.union_compressed_multiset)
+ ORDER BY curr.recno;
 
 -- Test cardinality of union of incremental multiset.
 --
@@ -62,7 +63,8 @@ SELECT curr.recno,
    AND curr.recno = prev.recno + 1
    AND curr.union_cardinality != 
        hll_cardinality(hll_union(curr.compressed_multiset,
-                                 prev.union_compressed_multiset));
+                                 prev.union_compressed_multiset))
+ ORDER BY curr.recno;
 
 -- Test aggregate accumulation
 --
@@ -75,7 +77,8 @@ SELECT v1.recno,
  WHERE v1.union_compressed_multiset !=
        (select hll_union_agg(compressed_multiset)
           from test_wsdiietv
-         where recno <= v1.recno);
+         where recno <= v1.recno)
+ ORDER BY v1.recno;
 
 -- Test aggregate accumulation with cardinality
 --
@@ -88,7 +91,8 @@ SELECT v1.recno,
  WHERE ceil(v1.union_cardinality) !=
        (select ceiling(hll_cardinality(hll_union_agg(compressed_multiset)))
           from test_wsdiietv
-         where recno <= v1.recno);
+         where recno <= v1.recno)
+ ORDER BY v1.recno;
 
 DROP TABLE test_wsdiietv;
 
