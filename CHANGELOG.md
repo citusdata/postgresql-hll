@@ -1,3 +1,10 @@
+2020-11-26
+==========
+v2.15
+- Updated for PostgreSQL 13
+- [PR #73]((https://github.com/citusdata/postgresql-hll/pull/73), Support parallel queries / aggregates
+- [PR #107]((https://github.com/citusdata/postgresql-hll/pull/107), Fixed out of range bug
+
 2019-11-15
 ==========
 v2.14 - Fixed an issue in version upgrades
