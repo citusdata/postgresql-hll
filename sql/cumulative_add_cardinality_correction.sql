@@ -44,9 +44,10 @@ SELECT curr.recno,
   FROM test_msgfjqhm prev, test_msgfjqhm curr
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
-   AND curr.cardinality != 
-       hll_cardinality(hll_add(prev.union_compressed_multiset,
-                       hll_hashval(curr.raw_value)))
+   AND round(curr.cardinality::numeric, 10) != 
+       round(hll_cardinality(hll_add(prev.union_compressed_multiset,
+                             hll_hashval(curr.raw_value)))::numeric,
+             10)
  ORDER BY curr.recno;
 
 DROP TABLE test_msgfjqhm;

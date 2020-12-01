@@ -44,9 +44,10 @@ SELECT curr.recno,
   FROM test_ptwysrqk prev, test_ptwysrqk curr
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
-   AND curr.cardinality != 
-       hll_cardinality(hll_add(prev.union_compressed_multiset,
-                       curr.raw_value::hll_hashval))
+   AND round(curr.cardinality::numeric, 10) != 
+       round(hll_cardinality(hll_add(prev.union_compressed_multiset,
+                             curr.raw_value::hll_hashval))::numeric,
+             10)
  ORDER BY curr.recno;
 
 DROP TABLE test_ptwysrqk;
