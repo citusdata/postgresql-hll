@@ -56,27 +56,13 @@ SELECT curr.recno,
   FROM test_ptwysrqk prev, test_ptwysrqk curr
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
-   AND curr.cardinality != 
-       hll_cardinality(hll_add(prev.union_compressed_multiset,
-                       curr.raw_value::hll_hashval))
+   AND round(curr.cardinality::numeric, 10) != 
+       round(hll_cardinality(hll_add(prev.union_compressed_multiset,
+                             curr.raw_value::hll_hashval))::numeric,
+             10)
  ORDER BY curr.recno;
- recno |   cardinality    | hll_cardinality  
--------+------------------+------------------
-  4343 | 4250.71186178904 | 4250.71186178904
-  4344 | 4250.71186178904 | 4250.71186178904
-  4345 | 4250.71186178904 | 4250.71186178904
-  4346 | 4250.71186178904 | 4250.71186178904
-  4347 | 4250.71186178904 | 4250.71186178904
-  4348 | 4250.71186178904 | 4250.71186178904
-  4349 | 4250.71186178904 | 4250.71186178904
-  4350 | 4250.71186178904 | 4250.71186178904
-  4351 | 4250.71186178904 | 4250.71186178904
-  4352 | 4250.71186178904 | 4250.71186178904
-  4353 | 4250.71186178904 | 4250.71186178904
-  4354 | 4250.71186178904 | 4250.71186178904
-  4355 | 4250.71186178904 | 4250.71186178904
-  4356 | 4250.71186178904 | 4250.71186178904
-  4357 | 4250.71186178904 | 4250.71186178904
-(15 rows)
+ recno | cardinality | hll_cardinality 
+-------+-------------+-----------------
+(0 rows)
 
 DROP TABLE test_ptwysrqk;

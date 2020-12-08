@@ -39,7 +39,8 @@ SELECT recno,
        union_cardinality,
        hll_cardinality(union_compressed_multiset)
   FROM test_bsnvqefe
- WHERE union_cardinality != hll_cardinality(union_compressed_multiset)
+ WHERE round(union_cardinality::numeric, 10) !=
+       round(hll_cardinality(union_compressed_multiset)::numeric, 10)
  ORDER BY recno;
 
 -- Test union of incremental multiset.
@@ -63,9 +64,10 @@ SELECT curr.recno,
   FROM test_bsnvqefe prev, test_bsnvqefe curr
  WHERE curr.recno > 1
    AND curr.recno = prev.recno + 1
-   AND curr.union_cardinality != 
-       hll_cardinality(hll_union(curr.compressed_multiset,
-                                 prev.union_compressed_multiset))
+   AND round(curr.union_cardinality::numeric, 10) != 
+       round(hll_cardinality(hll_union(curr.compressed_multiset,
+                                       prev.union_compressed_multiset))::numeric,
+            10)
  ORDER BY curr.recno;
 
 -- Test aggregate accumulation
