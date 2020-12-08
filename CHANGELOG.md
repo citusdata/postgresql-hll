@@ -1,3 +1,8 @@
+2020-12-08
+==========
+v2.15.1
+- [PR #112](https://github.com/citusdata/postgresql-hll/pull/112), Fixes tests on glibc>=2.29
+
 2020-11-26
 ==========
 v2.15
