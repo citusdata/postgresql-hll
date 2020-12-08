@@ -1,5 +1,4 @@
-sudo: required
-dist: bionic
+dist: focal
 language: c
 env:
   global:
