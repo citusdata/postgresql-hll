@@ -328,10 +328,18 @@ FunctionOid(const char *schemaName, const char *functionName, int argumentCount,
 	List *argumentList = NIL;
 	const bool findVariadics = false;
 	const bool findDefaults = false;
+#if PG_VERSION_NUM >= 140000
+	const bool includeOutArguments = false;
 
 	functionList = FuncnameGetCandidates(qualifiedFunctionNameList, argumentCount,
 										 argumentList, findVariadics,
-										 findDefaults, true);
+										 findDefaults, includeOutArguments,
+										 true);
+#else
+	functionList = FuncnameGetCandidates(qualifiedFunctionNameList, argumentCount,
+                                                                                 argumentList, findVariadics,
+                                                                                 findDefaults, true);
+#endif
 
 	if (functionList == NULL)
 	{
