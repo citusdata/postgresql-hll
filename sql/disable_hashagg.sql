@@ -4,10 +4,10 @@
 
 -- Since we get different results for 3 different PG version sets, add following
 -- queries to specify version of the output easier.
-SHOW server_version \gset
-SELECT substring(:'server_version', '\d+\.\d+')::float > 9.5 as version_above_nine_five;
-SELECT substring(:'server_version', '\d+\.\d+')::float = 9.5 as versiong_nine_five;
-SELECT substring(:'server_version', '\d+\.\d+')::float = 9.4 as versiong_nine_four;
+SHOW server_version_num \gset
+SELECT :'server_version_num' >= 90600 as version_above_nine_five;
+SELECT :'server_version_num' >= 90500 AND :'server_version_num' < 90600 as version_nine_five;
+SELECT :'server_version_num' >= 90400 AND :'server_version_num' < 90500 as version_nine_four;
 
 SELECT hll_set_output_version(1);
 
