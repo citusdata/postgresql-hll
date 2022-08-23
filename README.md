@@ -425,6 +425,16 @@ Then install:
 
         sudo make install
 
+### Troubleshooting source install ###
+
+You need postgresql's libraries and headers for C lang available in order to
+install from source. If you don't have these, you may encounter `No such file
+or directory` errors and will not be able to run the `make` step above. This
+step may depend on your OS but to install them on Debian variants use you may
+use:
+
+        sudo apt-get install postgresql-server-dev-<YOUR_VERSION>
+
 Install
 =======
 
