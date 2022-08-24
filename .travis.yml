@@ -14,6 +14,7 @@ matrix:
     - env: PGVERSION=12
     - env: PGVERSION=13
     - env: PGVERSION=14
+    - env: PGVERSION=15beta3
 before_install:
   - git clone -b v0.7.13 --depth 1 https://github.com/citusdata/tools.git
   - sudo make -C tools install
