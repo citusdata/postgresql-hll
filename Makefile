@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 EXTENSION = hll
-EXTVERSIONS = 2.10 2.11 2.12 2.13 2.14 2.15 2.16
+EXTVERSIONS = 2.10 2.11 2.12 2.13 2.14 2.15 2.16 2.17
 
 DATA_built = $(foreach v,$(EXTVERSIONS),$(EXTENSION)--$(v).sql) $(wildcard $(EXTENSION)--*--*.sql)
 
@@ -46,4 +46,6 @@ $(EXTENSION)--2.14.sql: $(EXTENSION)--2.13.sql $(EXTENSION)--2.13--2.14.sql
 $(EXTENSION)--2.15.sql: $(EXTENSION)--2.14.sql $(EXTENSION)--2.14--2.15.sql
 	cat $^ > $@
 $(EXTENSION)--2.16.sql: $(EXTENSION)--2.15.sql $(EXTENSION)--2.15--2.16.sql
+	cat $^ > $@
+$(EXTENSION)--2.17.sql: $(EXTENSION)--2.16.sql $(EXTENSION)--2.16--2.17.sql
 	cat $^ > $@
