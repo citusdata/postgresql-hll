@@ -47,7 +47,6 @@
 #include "utils/fmgrprotos.h"
 #endif
 #include "utils/guc.h"
-#include "utils/int8.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
 #if (PG_VERSION_NUM >= 100000)
