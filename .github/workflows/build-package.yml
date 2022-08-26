@@ -44,14 +44,14 @@ jobs:
           setup_apt
           nuke_pg
         env:
-          PGVERSION: {{ matrix.PGVERSION }}
+          PGVERSION: ${{ matrix.PGVERSION }}
 
       - name: Install
         run: |
           install_uncrustify
           install_pg
         env:
-          PGVERSION: {{ matrix.PGVERSION }}
+          PGVERSION: ${{ matrix.PGVERSION }}
 
       - name: Before Script
         run: |
@@ -59,10 +59,10 @@ jobs:
           echo "extra_float_digits = 0" >> "/etc/postgresql/${PGVERSION}/test/postgresql.conf"
           pg_ctlcluster "${PGVERSION}" test restart
         env:
-          PGVERSION: {{ matrix.PGVERSION }}
+          PGVERSION: ${{ matrix.PGVERSION }}
 
       - name: Script
         run: |
           pg_travis_test
         env:
-          PGVERSION: {{ matrix.PGVERSION }}
+          PGVERSION: ${{ matrix.PGVERSION }}
