@@ -1,7 +1,7 @@
 name: Build & Test HLL
 
 env:
-  - PG_PRELOAD=hll
+  PG_PRELOAD=hll
 on:
   push:
     branches:
