@@ -376,7 +376,7 @@ Build
 
 Specify versions:
 
-    export VER=2.16
+    export VER=2.17
     export PGSHRT=11
 
 Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
@@ -398,7 +398,7 @@ Install RPM:
 
 And if you want the debugging build:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-debuginfo-2.16.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-debuginfo-2.17.x86_64.rpm
 
 
 ## From source ##
@@ -449,7 +449,7 @@ And then just verify it's there:
                             List of installed extensions
           Name   | Version |   Schema   |            Description
         ---------+---------+------------+-----------------------------------
-         hll     | 2.16    | public     | type for storing hyperloglog data
+         hll     | 2.17    | public     | type for storing hyperloglog data
          plpgsql | 1.0     | pg_catalog | PL/pgSQL procedural language
         (2 rows)
 
