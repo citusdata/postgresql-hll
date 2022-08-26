@@ -1,0 +1,60 @@
+name: Build & Test HLL
+
+env:
+  - PG_PRELOAD=hll
+on:
+  push:
+    branches:
+      - "**"
+
+  workflow_dispatch:
+
+jobs:
+  build_package:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PGVERSION:
+          - 9.4
+          - 9.5
+          - 9.6
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Clone tools branch
+        run: git clone -b v0.8.18 --depth=1  https://github.com/citusdata/tools.git tools
+
+      - name: Install package dependencies
+        run: sudo apt-get update && sudo apt-get install libcurl4-openssl-dev libssl-dev python3-testresources
+
+
+      - name: Before Install
+        run: |
+          sudo make -C tools install
+          setup_apt
+          nuke_pg
+
+      - name: Install
+        run: |
+          install_uncrustify
+          install_pg
+
+      - name: Before Script
+        run: |
+          config_and_start_cluster
+          echo "extra_float_digits = 0" >> "/etc/postgresql/${PGVERSION}/test/postgresql.conf"
+          pg_ctlcluster "${PGVERSION}" test restart
+
+      - name: Script
+        run: |
+          pg_travis_test
