@@ -17,9 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         PGVERSION:
-          - 9.4
-          - 9.5
-          - 9.6
           - 10
           - 11
           - 12
