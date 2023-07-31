@@ -142,7 +142,9 @@ static void hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKin
 #endif
 
 static void MaximizeCostOfHashAggregate(Path *path);
+#if PG_VERSION_NUM < 160000
 static Oid get_extension_schema(Oid ext_oid);
+#endif
 static Oid FunctionOid(const char *schemaName, const char *functionName, int argumentCount, bool missingOk);
 static void InitializeHllAggregateOids(void);
 static bool HllAggregateOid(Oid aggregateOid);
@@ -257,6 +259,8 @@ InitializeHllAggregateOids()
 	aggregateValuesInitialized = true;
 }
 
+/* PG16 ships its own get_extension_schema */
+#if PG_VERSION_NUM < 160000
 /*
  * get_extension_schema - given an extension OID, fetch its extnamespace
  * Returns InvalidOid if no such extension.
@@ -308,6 +312,7 @@ get_extension_schema(Oid ext_oid)
 
 	return result;
 }
+#endif
 
 /*
  * FunctionOid searches for a given function identified by schema, functionName
@@ -323,7 +328,11 @@ FunctionOid(const char *schemaName, const char *functionName, int argumentCount,
 	Oid functionOid = InvalidOid;
 
 	char *qualifiedFunctionName = quote_qualified_identifier(schemaName, functionName);
-	List *qualifiedFunctionNameList = stringToQualifiedNameList(qualifiedFunctionName);
+	List *qualifiedFunctionNameList = stringToQualifiedNameList(qualifiedFunctionName
+#if PG_VERSION_NUM >= 160000
+					, NULL
+#endif
+			);
 	List *argumentList = NIL;
 	const bool findVariadics = false;
 	const bool findDefaults = false;
