@@ -362,7 +362,7 @@ You can choose the `EXPLICIT` cutoff such that it will end up taking more memory
 
 ### `sparseon` ###
 
-Enables or disables the `SPARSE` representation. If both the `EXPLICIT` and `SPARSE` representations are disabled, an `EMPTY` set will be promoted directly to a `FULL` set. If `SPARSE` is enabled, the promotion from `SPARSE` to `FULL` will occur when the internal `SPARSE` representation's memory footprint would exceed that of the `FULL` version. Must be either either `0` (zero) or `1` (one). Zero means disabled, one is enabled.
+Enables or disables the `SPARSE` representation. If both the `EXPLICIT` and `SPARSE` representations are disabled, an `EMPTY` set will be promoted directly to a `FULL` set. If `SPARSE` is enabled, the promotion from `SPARSE` to `FULL` will occur when the internal `SPARSE` representation's memory footprint would exceed that of the `FULL` version. Must be either `0` (zero) or `1` (one). Zero means disabled, one is enabled.
 
 Defaults
 --------
