@@ -55,23 +55,25 @@ Usage
 "Hello World"
 -------------
 
-        --- Make a dummy table
-        CREATE TABLE helloworld (
-                id              integer,
-                set     hll
-        );
+```sql
+--- Make a dummy table
+CREATE TABLE helloworld (
+        id              integer,
+        set     hll
+);
 
-        --- Insert an empty HLL
-        INSERT INTO helloworld(id, set) VALUES (1, hll_empty());
+--- Insert an empty HLL
+INSERT INTO helloworld(id, set) VALUES (1, hll_empty());
 
-        --- Add a hashed integer to the HLL
-        UPDATE helloworld SET set = hll_add(set, hll_hash_integer(12345)) WHERE id = 1;
+--- Add a hashed integer to the HLL
+UPDATE helloworld SET set = hll_add(set, hll_hash_integer(12345)) WHERE id = 1;
 
-        --- Or add a hashed string to the HLL
-        UPDATE helloworld SET set = hll_add(set, hll_hash_text('hello world')) WHERE id = 1;
+--- Or add a hashed string to the HLL
+UPDATE helloworld SET set = hll_add(set, hll_hash_text('hello world')) WHERE id = 1;
 
-        --- Get the cardinality of the HLL
-        SELECT hll_cardinality(set) FROM helloworld WHERE id = 1;
+--- Get the cardinality of the HLL
+SELECT hll_cardinality(set) FROM helloworld WHERE id = 1;
+```
 
 Now with the silly stuff out of the way, here's a more realistic use case.
 
@@ -80,56 +82,70 @@ Data Warehouse Use Case
 
 Let's assume I've got a fact table that records users' visits to my site, what they did, and where they came from. It's got hundreds of millions of rows. Table scans take minutes (or at least lots and lots of seconds.)
 
-    CREATE TABLE facts (
-        date            date,
-        user_id         integer,
-        activity_type   smallint,
-        referrer        varchar(255)
-    );
+```sql
+CREATE TABLE facts (
+  date            date,
+  user_id         integer,
+  activity_type   smallint,
+  referrer        varchar(255)
+);
+```
 
 I'd really like a quick (milliseconds) idea of how many unique users are visiting per day for my dashboard. No problem, let's set up an aggregate table:
 
-    -- Create the destination table
-    CREATE TABLE daily_uniques (
-        date            date UNIQUE,
-        users           hll
-    );
+```sql
+-- Create the destination table
+CREATE TABLE daily_uniques (
+  date            date UNIQUE,
+  users           hll
+);
 
-    -- Fill it with the aggregated unique statistics
-    INSERT INTO daily_uniques(date, users)
-        SELECT date, hll_add_agg(hll_hash_integer(user_id))
-        FROM facts
-        GROUP BY 1;
+-- Fill it with the aggregated unique statistics
+INSERT INTO daily_uniques(date, users)
+  SELECT date, hll_add_agg(hll_hash_integer(user_id))
+  FROM facts
+  GROUP BY 1;
+```
 
 We're first hashing the `user_id`, then aggregating those hashed values into one `hll` per day. Now we can ask for the cardinality of the `hll` for each day:
 
-    SELECT date, hll_cardinality(users) FROM daily_uniques;
+```sql
+SELECT date, hll_cardinality(users) FROM daily_uniques;
+```
 
 You're probably thinking, "But I could have done this with `COUNT DISTINCT`!" And you're right, you could have. But then you only ever answer a single question: "How many unique users did I see each day?"
 
 What if you wanted to this week's uniques?
 
-    SELECT hll_cardinality(hll_union_agg(users)) FROM daily_uniques WHERE date >= '2012-01-02'::date AND date <= '2012-01-08'::date;
+```sql
+SELECT hll_cardinality(hll_union_agg(users)) FROM daily_uniques WHERE date >= '2012-01-02'::date AND date <= '2012-01-08'::date;
+```
 
 Or the monthly uniques for this year?
 
-    SELECT EXTRACT(MONTH FROM date) AS month, hll_cardinality(hll_union_agg(users))
-    FROM daily_uniques
-    WHERE date >= '2012-01-01' AND
-          date <  '2013-01-01'
-    GROUP BY 1;
+```sql
+SELECT EXTRACT(MONTH FROM date) AS month, hll_cardinality(hll_union_agg(users))
+FROM daily_uniques
+WHERE date >= '2012-01-01' AND
+      date <  '2013-01-01'
+GROUP BY 1;
+```
 
 Or how about a sliding window of uniques over the past 6 days?
 
-    SELECT date, #hll_union_agg(users) OVER seven_days
-    FROM daily_uniques
-    WINDOW seven_days AS (ORDER BY date ASC ROWS 6 PRECEDING);
+```sql
+SELECT date, #hll_union_agg(users) OVER seven_days
+FROM daily_uniques
+WINDOW seven_days AS (ORDER BY date ASC ROWS 6 PRECEDING);
+```
 
 Or the number of uniques you saw yesterday that you didn't see today?
 
-    SELECT date, (#hll_union_agg(users) OVER two_days) - #users AS lost_uniques
-    FROM daily_uniques
-    WINDOW two_days AS (ORDER BY date ASC ROWS 1 PRECEDING);
+```sql
+SELECT date, (#hll_union_agg(users) OVER two_days) - #users AS lost_uniques
+FROM daily_uniques
+WINDOW two_days AS (ORDER BY date ASC ROWS 1 PRECEDING);
+```
 
 These are just a few examples of the types of queries that would return in milliseconds in an `hll` world from a single aggregate, but would require either completely separate pre-built aggregates or self-joins or `generate_series` trickery in a `COUNT DISTINCT` world.
 
@@ -278,23 +294,29 @@ Aggregate functions
 
 If you want to create a `hll` from a table or result set, use `hll_add_agg`. The naming here isn't particularly creative: it's an **agg**regate function that **add**s the values to an empty `hll`.
 
-    SELECT date, hll_add_agg(hll_hash_integer(user_id))
-    FROM facts
-    GROUP BY 1;
+```sql
+SELECT date, hll_add_agg(hll_hash_integer(user_id))
+FROM facts
+GROUP BY 1;
+```
 
 The above example will give you a `hll` for each date that contains each day's users.
 
 If you want to summarize a list of `hll`s that you already have stored into a single `hll`, use `hll_union_agg`. Again: it's an **agg**regate function that **union**s the values into an empty `hll`.
 
-    SELECT EXTRACT(MONTH FROM date), hll_cardinality(hll_union_agg(users))
-    FROM daily_uniques
-    GROUP BY 1;
+```sql
+SELECT EXTRACT(MONTH FROM date), hll_cardinality(hll_union_agg(users))
+FROM daily_uniques
+GROUP BY 1;
+```
 
 Sliding windows are another prime example of the power of `hll`s. Doing sliding window unique counting typically involves some `generate_series` trickery, but it's quite simple with the `hll`s you've already computed for your roll-ups.
 
-    SELECT date, #hll_union_agg(users) OVER seven_days
-    FROM daily_uniques
-    WINDOW seven_days AS (ORDER BY date ASC ROWS 6 PRECEDING);
+```sql
+SELECT date, #hll_union_agg(users) OVER seven_days
+FROM daily_uniques
+WINDOW seven_days AS (ORDER BY date ASC ROWS 6 PRECEDING);
+```
 
 Explanation of Parameters and Tuning
 ------------------------------------
