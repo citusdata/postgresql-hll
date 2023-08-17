@@ -1,0 +1,65 @@
+name: Build & Test HLL
+
+env:
+  PG_PRELOAD: hll
+on:
+  push:
+    branches:
+      - "**"
+
+  workflow_dispatch:
+
+jobs:
+  build_package:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PGVERSION:
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Clone tools branch
+        run: git clone -b add-pg15-scripts --depth=1  https://github.com/citusdata/tools.git tools
+
+      - name: Install package dependencies
+        run: sudo apt-get update && sudo apt-get install libcurl4-openssl-dev libssl-dev python3-testresources
+
+
+      - name: Before Install
+        run: |
+          sudo make -C tools install
+          setup_apt
+          nuke_pg
+        env:
+          PGVERSION: ${{ matrix.PGVERSION }}
+
+      - name: Install
+        run: |
+          install_uncrustify
+          install_pg
+        env:
+          PGVERSION: ${{ matrix.PGVERSION }}
+
+      - name: Before Script
+        run: |
+          config_and_start_cluster
+          echo "extra_float_digits = 0" >> "/etc/postgresql/${PGVERSION}/test/postgresql.conf"
+          pg_ctlcluster "${PGVERSION}" test restart
+        env:
+          PGVERSION: ${{ matrix.PGVERSION }}
+
+      - name: Script
+        run: |
+          pg_travis_test
+        env:
+          PGVERSION: ${{ matrix.PGVERSION }}
