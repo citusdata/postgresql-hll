@@ -3,11 +3,11 @@
 Overview
 ========
 
-This Postgres module introduces a new data type `hll` which is a [HyperLogLog](https://research.neustar.biz/2012/10/25/sketch-of-the-day-hyperloglog-cornerstone-of-a-big-data-infrastructure/) data structure. HyperLogLog is a **fixed-size**, set-like structure used for distinct value counting with tunable precision. For example, in 1280 bytes `hll` can estimate the count of tens of billions of distinct values with only a few percent error.
+This Postgres module introduces a new data type `hll` which is a [HyperLogLog](https://agkn.wordpress.com/2012/10/25/sketch-of-the-day-hyperloglog-cornerstone-of-a-big-data-infrastructure/) data structure. HyperLogLog is a **fixed-size**, set-like structure used for distinct value counting with tunable precision. For example, in 1280 bytes `hll` can estimate the count of tens of billions of distinct values with only a few percent error.
 
 In addition to the algorithm proposed in the [original paper](http://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf), this implementation is augmented to improve its accuracy and memory use without sacrificing much speed. See below for more details.
 
-This `postgresql-hll` extension was originally developed by the Science team from Aggregate Knowledge, now a part of [Neustar](https://research.neustar.biz). Please see the [acknowledgements](#acknowledgements) section below for details about its contributors. 
+This `postgresql-hll` extension was originally developed by the Science team from Aggregate Knowledge, now a part of [Neustar](https://www.home.neustar/). Please see the [acknowledgements](#acknowledgements) section below for details about its contributors. 
 
 Algorithms
 ----------
@@ -498,10 +498,10 @@ The seed to the hash call must remain constant for all inputs to a given `hll`. 
 
 For a good overview of the importance of hashing and hash functions when using probabilistic algorithms as well as an analysis of MurmurHash 3, see these four blog posts:
 
-* [K-Minimum Values: Sketching Error, Hash Functions, and You](http://blog.aggregateknowledge.com/2012/08/20/k-minimum-values-sketching-error-hash-functions-and-you/)
-* [Choosing a Good Hash Function, Part 1](http://blog.aggregateknowledge.com/2011/12/05/choosing-a-good-hash-function-part-1/)
-* [Choosing a Good Hash Function, Part 2](http://blog.aggregateknowledge.com/2011/12/29/choosing-a-good-hash-function-part-2/)
-* [Choosing a Good Hash Function, Part 3](http://blog.aggregateknowledge.com/2012/02/02/choosing-a-good-hash-function-part-3/)
+* [K-Minimum Values: Sketching Error, Hash Functions, and You](https://agkn.wordpress.com/2012/08/20/k-minimum-values-sketching-error-hash-functions-and-you/)
+* [Choosing a Good Hash Function, Part 1](https://agkn.wordpress.com/2011/12/05/choosing-a-good-hash-function-part-1/)
+* [Choosing a Good Hash Function, Part 2](https://agkn.wordpress.com/2011/12/29/choosing-a-good-hash-function-part-2/)
+* [Choosing a Good Hash Function, Part 3](https://agkn.wordpress.com/2012/02/02/choosing-a-good-hash-function-part-3/)
 
 On Unions and Intersections
 ===========================
@@ -510,7 +510,7 @@ On Unions and Intersections
 
 Using the [inclusion-exclusion principle](http://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle) and the union function, you can also estimate the intersection of sets represented by `hll`s. Note, however, that error is proportional to the union of the two `hll`s, while the result can be significantly smaller than the union, leading to disproportionately large error relative to the actual intersection cardinality. For instance, if one `hll` has a cardinality of 1 billion, while the other has a cardinality of 10 million, with an overlap of 5 million, the intersection cardinality can easily be dwarfed by even a 1% error estimate in the larger `hll`s cardinality.
 
-For more information on `hll` intersections, see [this blog post](https://research.neustar.biz/2012/12/17/hll-intersections-2/).
+For more information on `hll` intersections, see [this blog post](https://agkn.wordpress.com/2012/12/17/hll-intersections-2/).
 
 Storage formats
 ===============
