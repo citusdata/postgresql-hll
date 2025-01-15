@@ -21,8 +21,8 @@ OBJS = $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cpp,%.o,$(wildcard s
 
 PG_CPPFLAGS = -fPIC -Wall -Wextra -Werror -Wno-unused-parameter -Wno-implicit-fallthrough -Iinclude -I$(libpq_srcdir)
 
-REGRESS = setup $(filter-out setup,$(patsubst sql/%.sql,%,$(sort $(wildcard sql/*.sql))))
-
+REGRESS = --schedule=$(srcdir)/regress_schedule
+Run tests on a parallel schedule
 PG_CONFIG ?= pg_config
 PGXS = $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
