@@ -127,7 +127,7 @@ enum {
 static Oid hllAggregateArray[HLL_AGGREGATE_COUNT];
 static bool aggregateValuesInitialized = false;
 
-bool ForceGroupAgg = false;
+static bool ForceGroupAgg = false;
 
 static create_upper_paths_hook_type previous_upper_path_hook;
 static void RegisterConfigVariables(void);
@@ -2053,7 +2053,7 @@ check_modifiers(int32 log2m, int32 regwidth, int64 expthresh, int32 sparseon)
     if (expthresh < -1 || expthresh > expthresh_max)
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("expthresh modifier must be between -1 and %ld", expthresh_max)));
+                 errmsg("expthresh modifier must be between -1 and "INT64_FORMAT, expthresh_max)));
 
     if (expthresh > 0 && (1LL << integer_log2(expthresh)) != expthresh)
         ereport(ERROR,
