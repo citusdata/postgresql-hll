@@ -3608,7 +3608,11 @@ hll_pack(PG_FUNCTION_ARGS)
     // Is the first argument a NULL?
     if (PG_ARGISNULL(0))
     {
-        PG_RETURN_NULL();
+        PG_RETURN_DATUM(DirectFunctionCall4(hll_empty4,
+                                            Int32GetDatum(g_default_log2m),
+                                            Int32GetDatum(g_default_regwidth),
+                                            Int64GetDatum(g_default_expthresh),
+                                            Int32GetDatum(g_default_sparseon)));
     }
     else
     {
@@ -3635,7 +3639,7 @@ hll_pack(PG_FUNCTION_ARGS)
 
             PG_RETURN_BYTEA_P(cb);
         }
-    }
+    }   
 }
 
 // Final function, computes cardinality of unpacked bytea.
