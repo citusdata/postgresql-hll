@@ -385,7 +385,7 @@ Compatibility
 
 This module has been tested on:
 
-* **Postgres 9.4, 9.5, 9.6, 10, 11, 12, 13, 14, 15, 16, 17**
+* **Postgres 9.4, 9.5, 9.6, 10, 11, 12, 13, 14, 15, 16, 17, 18**
 
 If you end up needing to change something to get this running on another system, send us the diff and we'll try to work it in!
 
@@ -398,7 +398,7 @@ Build
 
 Specify versions:
 
-    export VER=2.18
+    export VER=2.19
     export PGSHRT=11
 
 Make sure `Makefile` points to the correct `pg_config` for the specified version, since `rpmbuild` doesn't respect env variables:
@@ -416,11 +416,11 @@ Execute rpmbuild:
 
 Install RPM:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-2.18.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-2.19.x86_64.rpm
 
 And if you want the debugging build:
 
-    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-debuginfo-2.18.x86_64.rpm
+    rpm -Uv rpmbuild/RPMS/x86_64/postgresql11-hll-debuginfo-2.19.x86_64.rpm
 
 
 ## From source ##
@@ -471,7 +471,7 @@ And then just verify it's there:
                             List of installed extensions
           Name   | Version |   Schema   |            Description
         ---------+---------+------------+-----------------------------------
-         hll     | 2.18    | public     | type for storing hyperloglog data
+         hll     | 2.19    | public     | type for storing hyperloglog data
          plpgsql | 1.0     | pg_catalog | PL/pgSQL procedural language
         (2 rows)
 
