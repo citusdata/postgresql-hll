@@ -1,1 +1,1 @@
--- Empty upgrade file to upgrade extension from 2.16 to 2.17
+-- Empty upgrade file to upgrade extension from 2.17 to 2.18
