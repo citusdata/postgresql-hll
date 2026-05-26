@@ -515,6 +515,8 @@ static int32 encode_expthresh(int64 expthresh)
         return integer_log2(expthresh) + 1;
 }
 
+static size_t mse_nelem_max(void);
+static void check_modifiers(int32 log2m, int32 regwidth, int64 expthresh, int32 sparseon);
 // If expthresh == -1 (auto select expthresh) determine
 // the expthresh to use from nbits and nregs.
 //
@@ -531,7 +533,9 @@ expthresh_value(int64 expthresh, size_t nbits, size_t nregs)
         // registers that fits in the same space as the compressed
         // encoding.
         size_t cmpsz = ((nbits * nregs) + 7) / 8;
-        return cmpsz / sizeof(uint64_t);
+        size_t result = cmpsz / sizeof(uint64_t);
+        size_t max_elems = mse_nelem_max();
+        return (result > max_elems) ? max_elems : result;
     }
 }
 
@@ -1212,7 +1216,11 @@ multiset_add(multiset_t * o_msp, uint64_t element)
     size_t expval = expthresh_value(o_msp->ms_expthresh,
                                     o_msp->ms_nbits,
                                     o_msp->ms_nregs);
-    Assert(expval <= mse_nelem_max());
+    if (expval > mse_nelem_max())
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("explicit threshold %zu exceeds maximum buffer capacity %zu",
+                        expval, mse_nelem_max())));
 
     switch (o_msp->ms_type)
     {
@@ -1251,7 +1259,7 @@ multiset_add(multiset_t * o_msp, uint64_t element)
             }
 
             // Is the explicit multiset full?
-            if (msep->mse_nelem == expval)
+            if (msep->mse_nelem >= expval || msep->mse_nelem >= mse_nelem_max())
             {
                 // Convert it to compressed.
                 explicit_to_compressed(o_msp);
@@ -1322,7 +1330,7 @@ explicit_union(multiset_t * o_msp, ms_explicit_t const * i_msep)
                         element_compare))
                 continue;
 
-            if (msep->mse_nelem < expval)
+            if (msep->mse_nelem < expval && msep->mse_nelem < mse_nelem_max())
             {
                 // Add the element at the end.
                 msep->mse_elems[msep->mse_nelem++] = element;
@@ -1404,6 +1412,9 @@ multiset_unpack(multiset_t * o_msp,
             }
 
             unpack_header(o_msp, i_bitp, vers, type);
+
+            check_modifiers(o_msp->ms_log2nregs, o_msp->ms_nbits,
+                            o_msp->ms_expthresh, o_msp->ms_sparseon);
         }
         else
         {
@@ -1440,6 +1451,9 @@ multiset_unpack(multiset_t * o_msp,
             }
 
             unpack_header(o_msp, i_bitp, vers, type);
+
+            check_modifiers(o_msp->ms_log2nregs, o_msp->ms_nbits,
+                            o_msp->ms_expthresh, o_msp->ms_sparseon);
 
             msep->mse_nelem = nelem;
             for (size_t ii = 0; ii < nelem; ++ii)
@@ -3843,6 +3857,11 @@ hll_serialize(PG_FUNCTION_ARGS)
     multiSet = (multiset_t *) PG_GETARG_POINTER(0);
     multiSetSize = multiset_copy_size(multiSet);
 
+    if (multiSetSize > sizeof(multiset_t))
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("serialized HLL exceeds maximum multiset size")));
+
     serializedBytes = palloc(VARHDRSZ + multiSetSize);
 
     SET_VARSIZE(serializedBytes, VARHDRSZ + multiSetSize);
@@ -3868,6 +3887,12 @@ hll_deserialize(PG_FUNCTION_ARGS)
     multiSet = palloc(sizeof(multiset_t));
 
     multiSetSize = VARSIZE(serializedBytes) - VARHDRSZ;
+
+    if (multiSetSize > sizeof(multiset_t))
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("deserialized HLL exceeds maximum multiset size")));
+
     memcpy(multiSet, VARDATA(serializedBytes), multiSetSize);
 
     PG_RETURN_POINTER(multiSet);
