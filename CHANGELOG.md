@@ -1,3 +1,8 @@
+2026-05-26
+==========
+v2.20
+- Updated for PostgreSQL 19 and some fixes
+
 2025-10-17
 ==========
 v2.19
