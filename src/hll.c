@@ -234,7 +234,7 @@ hll_aggregation_restriction_hook(PlannerInfo *root, UpperRelationKind stage,
  * InitializeHllAggregateOids initializes the array of hll aggregate oids.
  */
 static void
-InitializeHllAggregateOids()
+InitializeHllAggregateOids(void)
 {
 	Oid extensionId = get_extension_oid(EXTENSION_NAME, false);
 	Oid hllSchemaOid = get_extension_schema(extensionId);
@@ -336,7 +336,15 @@ FunctionOid(const char *schemaName, const char *functionName, int argumentCount,
 	List *argumentList = NIL;
 	const bool findVariadics = false;
 	const bool findDefaults = false;
-#if PG_VERSION_NUM >= 140000
+#if PG_VERSION_NUM >= 190000
+	const bool includeOutArguments = false;
+	int fgcFlags = 0;
+
+	functionList = FuncnameGetCandidates(qualifiedFunctionNameList, argumentCount,
+										 argumentList, findVariadics,
+										 findDefaults, includeOutArguments,
+										 true, &fgcFlags);
+#elif PG_VERSION_NUM >= 140000
 	const bool includeOutArguments = false;
 
 	functionList = FuncnameGetCandidates(qualifiedFunctionNameList, argumentCount,
