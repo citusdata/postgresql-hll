@@ -223,14 +223,14 @@ ANALYZE hll_parallel_test;
 
 -- Non-parallel baseline.
 SET max_parallel_workers_per_gather = 0;
-SELECT hll_cardinality(hll_union_agg(h)) AS card_serial FROM hll_parallel_test;
+SELECT round(hll_cardinality(hll_union_agg(h))::numeric, 5) AS card_serial FROM hll_parallel_test;
 
 -- Force parallel execution to exercise hll_serialize/hll_deserialize.
 SET max_parallel_workers_per_gather = 2;
 SET parallel_tuple_cost = 0;
 SET parallel_setup_cost = 0;
 SET min_parallel_table_scan_size = 0;
-SELECT hll_cardinality(hll_union_agg(h)) AS card_parallel FROM hll_parallel_test;
+SELECT round(hll_cardinality(hll_union_agg(h))::numeric, 5) AS card_parallel FROM hll_parallel_test;
 
 -- Reset.
 RESET max_parallel_workers_per_gather;
