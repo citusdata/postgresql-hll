@@ -1,3 +1,9 @@
+2026-06-01
+==========
+v2.21
+- Hardened input validation in multiset_unpack and hll_deserialize
+- Enforce thresholds in explicit representation handling
+
 2026-05-26
 ==========
 v2.20
