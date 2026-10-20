@@ -3127,9 +3127,19 @@ hll_hash_any(PG_FUNCTION_ARGS)
         break;
 
     case -1:
-    case -2:
         hashResultDatum = DirectFunctionCall2(hll_hash_varlena, keyDatum, seedDatum);
         break;
+
+    case -2:
+    {
+        text * keyText = cstring_to_text(DatumGetCString(keyDatum));
+
+        hashResultDatum = DirectFunctionCall2(hll_hash_varlena,
+                                              PointerGetDatum(keyText),
+                                              seedDatum);
+        pfree(keyText);
+        break;
+    }
 
     default:
     {

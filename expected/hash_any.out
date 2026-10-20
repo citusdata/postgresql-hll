@@ -122,6 +122,15 @@ SELECT hll_hash_text('AB') = hll_hash_any('AB'::text);
  t
 (1 row)
 
+-- cstring values must hash their bytes, not a varlena header.
+DO $$
+BEGIN
+    IF hll_hash_any(cash_out(0::money)) <>
+       hll_hash_text(cash_out(0::money)::text) THEN
+        RAISE EXCEPTION 'cstring hash differs from text hash';
+    END IF;
+END
+$$;
 -- ---------------- Check several types not handled by default hash functions
 -- ---------------- macaddr
 SELECT hll_hash_any('08:00:2b:01:02:03'::macaddr);
