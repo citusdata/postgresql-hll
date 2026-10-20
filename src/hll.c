@@ -1390,9 +1390,17 @@ multiset_unpack(multiset_t * o_msp,
                 size_t i_size,
                 uint8_t * o_encoded_type)
 {
+    uint8_t vers;
+    uint8_t type;
+
+    if (i_size < 3)
+        ereport(ERROR,
+                (errcode(ERRCODE_DATA_EXCEPTION),
+                 errmsg("multiset too small")));
+
     // First byte is the version and type header.
-    uint8_t vers = (i_bitp[0] >> 4) & 0xf;
-    uint8_t type = i_bitp[0] & 0xf;
+    vers = (i_bitp[0] >> 4) & 0xf;
+    type = i_bitp[0] & 0xf;
 
     if (vers != 1)
         ereport(ERROR,
