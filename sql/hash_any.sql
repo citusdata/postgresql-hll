@@ -31,6 +31,16 @@ SELECT hll_hash_text('A') = hll_hash_any('A'::text);
 SELECT hll_hash_text('B') = hll_hash_any('B'::text);
 SELECT hll_hash_text('AB') = hll_hash_any('AB'::text);
 
+-- cstring values must hash their bytes, not a varlena header.
+DO $$
+BEGIN
+    IF hll_hash_any(cash_out(0::money)) <>
+       hll_hash_text(cash_out(0::money)::text) THEN
+        RAISE EXCEPTION 'cstring hash differs from text hash';
+    END IF;
+END
+$$;
+
 -- ---------------- Check several types not handled by default hash functions
 
 -- ---------------- macaddr
