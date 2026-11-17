@@ -3113,7 +3113,14 @@ hll_hash_any(PG_FUNCTION_ARGS)
     Datum hashResultDatum = 0;
 
     Oid keyTypeId = get_fn_expr_argtype(fcinfo->flinfo, 0);
-    int16 keyTypeLength = get_typlen(keyTypeId);
+    int16 keyTypeLength;
+    bool keyTypeByValue;
+
+    get_typlenbyval(keyTypeId, &keyTypeLength, &keyTypeByValue);
+
+    /* fixed-size types passed by reference (e.g. macaddr8) take the default case */
+    if (keyTypeLength > 0 && !keyTypeByValue)
+        keyTypeLength = 0;
 
     /* dispatch to corresponding hash function for key type */
     switch (keyTypeLength)

@@ -41,6 +41,20 @@ BEGIN
 END
 $$;
 
+-- macaddr8 values must hash their bytes, not the address of the datum.
+DO $$
+BEGIN
+    IF hll_hash_any('08:00:2b:01:02:03:04:05'::macaddr8) <>
+       hll_hash_bytea(macaddr8_send('08:00:2b:01:02:03:04:05'::macaddr8)) THEN
+        RAISE EXCEPTION 'macaddr8 hash differs from its binary representation hash';
+    END IF;
+END
+$$;
+
+SELECT count(DISTINCT hll_hash_any(v)::text)
+FROM (VALUES ('08:00:2b:01:02:03:04:05'::macaddr8),
+             ('08:00:2b:01:02:03:04:05'::macaddr8)) t(v);
+
 -- ---------------- Check several types not handled by default hash functions
 
 -- ---------------- macaddr
