@@ -51,9 +51,11 @@ BEGIN
 END
 $$;
 
-SELECT count(DISTINCT hll_hash_any(v)::text)
-FROM (VALUES ('08:00:2b:01:02:03:04:05'::macaddr8),
-             ('08:00:2b:01:02:03:04:05'::macaddr8)) t(v);
+CREATE TEMP TABLE hash_any_macaddr8 AS
+SELECT (lpad(to_hex(g % 10), 2, '0') || ':00:2b:01:02:03:04:05')::macaddr8 AS m
+FROM generate_series(1, 1000) g;
+SELECT hll_cardinality(hll_add_agg(hll_hash_any(m))) FROM hash_any_macaddr8;
+DROP TABLE hash_any_macaddr8;
 
 -- ---------------- Check several types not handled by default hash functions
 
